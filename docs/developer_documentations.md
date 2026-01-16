@@ -102,4 +102,3 @@ Do not implement Auth or Maps yet. Focus solely on the structure and localizatio
 2. Ensure the layout is responsive (mobile-friendly) using Tailwind classes.  
 3. Add a check to ensure no API keys are hardcoded.  
 4. Provide a `README.md` snippet
-
