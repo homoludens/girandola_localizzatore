@@ -44,5 +44,10 @@
     "saveSuccess": "Girandola added successfully!",
     "saveError": "Failed to save Girandola. Please try again.",
     "confirmLocation": "Add Girandola here?"
+  },
+  "export": {
+    "button": "Export CSV",
+    "exporting": "Exporting...",
+    "noData": "No data to export"
   }
 }

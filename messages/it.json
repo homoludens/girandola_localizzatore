@@ -44,5 +44,10 @@
     "saveSuccess": "Girandola aggiunta con successo!",
     "saveError": "Impossibile salvare la Girandola. Riprova.",
     "confirmLocation": "Aggiungere Girandola qui?"
+  },
+  "export": {
+    "button": "Esporta CSV",
+    "exporting": "Esportazione...",
+    "noData": "Nessun dato da esportare"
   }
 }
