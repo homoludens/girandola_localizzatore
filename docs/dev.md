@@ -318,7 +318,93 @@ const girandolas = await prisma.girandola.findMany({
 });
 ```
 
-## Upcoming Tasks
+### Task 9: Authentication Refactoring (Prisma Adapter) ✅
 
-- **Task 9**: Update NextAuth to use Prisma Adapter
-- **Task 10**: Update API routes to use Prisma instead of Vercel KV
+**What was implemented:**
+
+1. **Prisma Adapter for NextAuth** - Installed `@auth/prisma-adapter` to store users, accounts, and sessions in the database.
+
+2. **Updated Auth Configuration** (`src/auth/index.ts`):
+   ```typescript
+   import { PrismaAdapter } from "@auth/prisma-adapter";
+   import { prisma } from "@/lib/prisma";
+   
+   export const { handlers, auth, signIn, signOut } = NextAuth({
+     ...authConfig,
+     adapter: PrismaAdapter(prisma),
+   });
+   ```
+
+3. **JWT Session with User ID** - Added callbacks to persist `userId` in JWT and session:
+   ```typescript
+   callbacks: {
+     async jwt({ token, user }) {
+       if (user) token.userId = user.id;
+       return token;
+     },
+     async session({ session, token }) {
+       if (token) session.user.id = token.userId as string;
+       return session;
+     },
+   }
+   ```
+
+4. **Type Extensions** (`src/types/next-auth.d.ts`):
+   - Extended `Session` interface to include `user.id`
+   - Extended `JWT` interface to include `userId`
+
+### Task 10: Data Persistence Refactoring (KV to Prisma) ✅
+
+**What was implemented:**
+
+1. **Removed Vercel KV** - All `@vercel/kv` imports and usage removed from source code.
+
+2. **Girandola API** (`src/app/api/girandolas/route.ts`):
+   - `GET` - Fetches all Girandolas with user email via Prisma
+   - `POST` - Creates new Girandola linked to authenticated user's `userId`
+
+3. **Prisma Queries:**
+   ```typescript
+   // Create
+   await prisma.girandola.create({
+     data: { lat, lng, userId: session.user.id },
+   });
+   
+   // Read all
+   await prisma.girandola.findMany({
+     include: { user: { select: { email: true } } },
+     orderBy: { createdAt: "desc" },
+   });
+   ```
+
+4. **Coordinate Precision** - `lat` and `lng` stored as `Float` (PostgreSQL double precision) for full floating-point accuracy.
+
+### Task 11: Export Feature Update ✅
+
+**What was implemented:**
+
+1. **New Export Endpoint** (`src/app/api/girandolas/export/route.ts`):
+   - Requires authentication (returns 401 if not logged in)
+   - Filters by `userId` - users can only export their own Girandolas
+   - Orders by `createdAt` descending
+   - Converts Postgres `DateTime` to ISO string for CSV compatibility
+
+2. **Prisma Query for Export:**
+   ```typescript
+   await prisma.girandola.findMany({
+     where: { userId: session.user.id },
+     include: { user: { select: { email: true } } },
+     orderBy: { createdAt: "desc" },
+   });
+   ```
+
+3. **Updated DashboardClient** - Export button now calls `/api/girandolas/export` instead of `/api/girandolas`.
+
+## API Endpoints
+
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/api/auth/[...nextauth]` | * | - | NextAuth handlers |
+| `/api/girandolas` | GET | No | Get all Girandolas |
+| `/api/girandolas` | POST | Yes | Create new Girandola |
+| `/api/girandolas/export` | GET | Yes | Get user's own Girandolas (for CSV)
