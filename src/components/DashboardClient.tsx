@@ -54,7 +54,7 @@ export default function DashboardClient() {
 
       const newGirandola = await response.json();
       setGirandolas((prev) => [newGirandola, ...prev]);
-      
+
       // Reset all states
       setIsDialogOpen(false);
       setPickMode(false);
@@ -138,7 +138,7 @@ export default function DashboardClient() {
       const headers = ["Latitude", "Longitude", "User Email", "Date"];
       const csvRows = [
         headers.join(","),
-        ...data.map((g) => {
+        ...data.map((g: any) => {
           const date = new Date(g.createdAt).toISOString();
           return [g.lat, g.lng, g.userEmail, date].join(",");
         }),

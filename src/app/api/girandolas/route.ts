@@ -19,7 +19,7 @@ export async function GET() {
     });
 
     // Transform to match the expected API response format
-    const response = girandolas.map((g) => ({
+    const response = girandolas.map((g: any) => ({
       id: g.id,
       lat: g.lat,
       lng: g.lng,
