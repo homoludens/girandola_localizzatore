@@ -122,8 +122,8 @@ export default function DashboardClient() {
   const handleExportCsv = useCallback(async () => {
     setIsExporting(true);
     try {
-      // Fetch fresh data from API
-      const response = await fetch("/api/girandolas");
+      // Fetch user's own girandolas from export endpoint
+      const response = await fetch("/api/girandolas/export");
       if (!response.ok) {
         throw new Error("Failed to fetch data");
       }
