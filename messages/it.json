@@ -19,5 +19,10 @@
   "dashboard": {
     "title": "Dashboard",
     "description": "La mappa delle tue Girandole apparirà qui"
+  },
+  "map": {
+    "loading": "Caricamento mappa...",
+    "errorLoading": "Impossibile caricare la mappa",
+    "attribution": "Dati mappa"
   }
 }

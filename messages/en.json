@@ -19,5 +19,10 @@
   "dashboard": {
     "title": "Dashboard",
     "description": "Your Girandola map will appear here"
+  },
+  "map": {
+    "loading": "Loading map...",
+    "errorLoading": "Failed to load map",
+    "attribution": "Map data"
   }
 }
