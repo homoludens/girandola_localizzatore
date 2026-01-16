@@ -1,5 +1,6 @@
 {
   "common": {
+    "appName": "Girandola",
     "home": "Home",
     "login": "Accedi",
     "language": "Lingua",
@@ -43,7 +44,8 @@
     "locationError": "Impossibile ottenere la posizione. Abilita il GPS o prova a scegliere sulla mappa.",
     "saveSuccess": "Girandola aggiunta con successo!",
     "saveError": "Impossibile salvare la Girandola. Riprova.",
-    "confirmLocation": "Aggiungere Girandola qui?"
+    "confirmLocation": "Aggiungere Girandola qui?",
+    "newMarker": "Nuova Girandola"
   },
   "export": {
     "button": "Esporta CSV",

@@ -1,8 +1,15 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
+import { useRouter, usePathname } from "@/i18n/navigation";
+import { locales, type Locale } from "@/i18n/config";
+
+const localeNames: Record<Locale, string> = {
+  en: "English",
+  it: "Italiano",
+};
 
 type UserMenuProps = {
   user: {
@@ -15,8 +22,17 @@ type UserMenuProps = {
 
 export function UserMenu({ user, signOutAction }: UserMenuProps) {
   const t = useTranslations("auth");
+  const tCommon = useTranslations("common");
+  const locale = useLocale();
+  const router = useRouter();
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const handleLocaleChange = (newLocale: Locale) => {
+    router.replace(pathname, { locale: newLocale });
+    setIsOpen(false);
+  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -60,6 +76,25 @@ export function UserMenu({ user, signOutAction }: UserMenuProps) {
             {user.email && (
               <p className="truncate text-xs text-gray-500">{user.email}</p>
             )}
+          </div>
+          {/* Mobile language switcher */}
+          <div className="border-b border-gray-100 px-4 py-2 sm:hidden">
+            <p className="mb-2 text-xs font-medium text-gray-500">{tCommon("language")}</p>
+            <div className="flex gap-2">
+              {locales.map((loc) => (
+                <button
+                  key={loc}
+                  onClick={() => handleLocaleChange(loc)}
+                  className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
+                    locale === loc
+                      ? "bg-blue-100 text-blue-700"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  {localeNames[loc]}
+                </button>
+              ))}
+            </div>
           </div>
           <form action={signOutAction} className="px-2 pt-2">
             <button

@@ -1,5 +1,6 @@
 {
   "common": {
+    "appName": "Girandola",
     "home": "Home",
     "login": "Login",
     "language": "Language",
@@ -43,7 +44,8 @@
     "locationError": "Could not get your location. Please enable GPS or try picking on map.",
     "saveSuccess": "Girandola added successfully!",
     "saveError": "Failed to save Girandola. Please try again.",
-    "confirmLocation": "Add Girandola here?"
+    "confirmLocation": "Add Girandola here?",
+    "newMarker": "New Girandola"
   },
   "export": {
     "button": "Export CSV",

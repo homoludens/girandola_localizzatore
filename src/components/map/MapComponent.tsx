@@ -23,6 +23,7 @@ interface MapComponentProps {
   pickMode?: boolean;
   onMapClick?: (lat: number, lng: number) => void;
   pendingLocation?: { lat: number; lng: number } | null;
+  newMarkerLabel?: string;
 }
 
 // Component to handle map resize when container changes
@@ -81,6 +82,7 @@ export default function MapComponent({
   pickMode = false,
   onMapClick,
   pendingLocation = null,
+  newMarkerLabel = "New Girandola",
 }: MapComponentProps) {
   return (
     <MapContainer
@@ -116,7 +118,7 @@ export default function MapComponent({
       {pendingLocation && (
         <Marker position={[pendingLocation.lat, pendingLocation.lng]}>
           <Popup>
-            <div className="text-sm font-medium">New Girandola</div>
+            <div className="text-sm font-medium">{newMarkerLabel}</div>
           </Popup>
         </Marker>
       )}

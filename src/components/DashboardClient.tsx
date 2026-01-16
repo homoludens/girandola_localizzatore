@@ -170,6 +170,7 @@ export default function DashboardClient() {
         pickMode={pickMode}
         onMapClick={handleMapClick}
         pendingLocation={pendingLocation}
+        newMarkerLabel={t("newMarker")}
       />
 
       {/* Export CSV Button */}
