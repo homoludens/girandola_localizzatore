@@ -37,7 +37,10 @@ src/
 ├── components/
 │   ├── LanguageSwitcher.tsx
 │   ├── Navigation.tsx      # Main nav bar (server component)
-│   └── UserMenu.tsx        # User dropdown (client component)
+│   ├── UserMenu.tsx        # User dropdown (client component)
+│   └── map/
+│       ├── index.tsx       # Dynamic import wrapper (ssr: false)
+│       └── MapComponent.tsx # Leaflet map component
 ├── i18n/
 │   ├── config.ts           # Locale configuration
 │   ├── navigation.ts       # Localized Link/useRouter
@@ -143,9 +146,54 @@ npm run build
 npm start
 ```
 
+### Task 3: Map Component (Leaflet) ✅
+
+**What was implemented:**
+
+1. **Leaflet Packages** - Installed `react-leaflet`, `leaflet`, and `@types/leaflet` for TypeScript support.
+
+2. **MapComponent** (`src/components/map/MapComponent.tsx`):
+   - Renders OpenStreetMap tiles via `TileLayer`
+   - Configurable props: `center`, `zoom`, `className`
+   - Default center: Turin, Italy (45.0703, 7.6869)
+   - Includes `MapResizeHandler` to properly handle container resize events
+   - Full-width and full-height within container
+
+3. **SSR Handling** (`src/components/map/index.tsx`):
+   - Uses `next/dynamic` with `{ ssr: false }` to prevent hydration errors
+   - Leaflet requires `window`/`document` which aren't available during SSR
+   - Shows loading spinner while map loads client-side
+
+4. **Leaflet Icon Fix**:
+   - Default marker icons don't bundle correctly in Webpack/Next.js
+   - Configured CDN fallback for marker assets:
+     ```typescript
+     L.Icon.Default.mergeOptions({
+       iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+       iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+       shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+     });
+     ```
+
+5. **Dashboard Integration**:
+   - Map takes full remaining screen height: `h-[calc(100vh-57px)]`
+   - Accounts for navigation bar height
+
+6. **i18n Translations** - Added `map` namespace with loading states in both `en.json` and `it.json`.
+
+**Usage:**
+```tsx
+import { MapComponent } from "@/components/map";
+
+// Basic usage
+<MapComponent />
+
+// With custom center and zoom
+<MapComponent center={[45.0703, 7.6869]} zoom={15} />
+```
+
 ## Upcoming Tasks
 
-- **Task 3**: Vercel KV database setup
-- **Task 4**: Map interface with react-leaflet
+- **Task 4**: Vercel KV database setup
 - **Task 5**: Add Girandola functionality (GPS + manual placement)
 - **Task 6**: Export to CSV feature
