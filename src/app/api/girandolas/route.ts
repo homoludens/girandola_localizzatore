@@ -1,14 +1,33 @@
-import { kv } from "@vercel/kv";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
-import type { Girandola, CreateGirandolaPayload } from "@/types/girandola";
-
-const GIRANDOLAS_KEY = "girandolas";
+import { prisma } from "@/lib/prisma";
+import type { CreateGirandolaPayload } from "@/types/girandola";
 
 export async function GET() {
   try {
-    const girandolas = await kv.lrange<Girandola>(GIRANDOLAS_KEY, 0, -1);
-    return NextResponse.json(girandolas ?? []);
+    const girandolas = await prisma.girandola.findMany({
+      include: {
+        user: {
+          select: {
+            email: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    // Transform to match the expected API response format
+    const response = girandolas.map((g) => ({
+      id: g.id,
+      lat: g.lat,
+      lng: g.lng,
+      userEmail: g.user.email,
+      createdAt: g.createdAt.toISOString(),
+    }));
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error("Error fetching girandolas:", error);
     return NextResponse.json(
@@ -22,7 +41,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await auth();
 
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
@@ -38,17 +57,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const girandola: Girandola = {
-      id: crypto.randomUUID(),
-      lat: body.lat,
-      lng: body.lng,
-      userEmail: session.user.email,
-      createdAt: new Date().toISOString(),
+    const girandola = await prisma.girandola.create({
+      data: {
+        lat: body.lat,
+        lng: body.lng,
+        userId: session.user.id,
+      },
+      include: {
+        user: {
+          select: {
+            email: true,
+          },
+        },
+      },
+    });
+
+    // Return in the expected format
+    const response = {
+      id: girandola.id,
+      lat: girandola.lat,
+      lng: girandola.lng,
+      userEmail: girandola.user.email,
+      createdAt: girandola.createdAt.toISOString(),
     };
 
-    await kv.lpush(GIRANDOLAS_KEY, girandola);
-
-    return NextResponse.json(girandola, { status: 201 });
+    return NextResponse.json(response, { status: 201 });
   } catch (error) {
     console.error("Error creating girandola:", error);
     return NextResponse.json(
