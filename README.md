@@ -17,7 +17,7 @@ A mobile-first location tracking application where users can log in, view a map,
 - Auto-detect browser language with manual toggle
 - Full-screen map showing existing Girandolas
 - Add location via GPS or manual map placement
-- Export all points as CSV file
+- Export your own Girandolas as CSV file (filtered by user)
 - Mobile-first responsive design
 
 ## Environment Variables
@@ -95,6 +95,8 @@ src/
 │   ├── api/
 │   │   ├── auth/[...nextauth]/  # NextAuth API route
 │   │   └── girandolas/          # Girandola CRUD endpoints
+│   │       ├── route.ts         # GET all, POST new
+│   │       └── export/route.ts  # GET user's own (for CSV export)
 │   └── [locale]/                # Localized pages
 ├── auth/                        # NextAuth configuration
 ├── components/                  # React components
