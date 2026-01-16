@@ -3,7 +3,12 @@
     "home": "Home",
     "login": "Accedi",
     "language": "Lingua",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "cancel": "Annulla",
+    "confirm": "Conferma",
+    "saving": "Salvataggio...",
+    "success": "Successo",
+    "error": "Errore"
   },
   "home": {
     "title": "Girandola Localizzatore",
@@ -24,5 +29,20 @@
     "loading": "Caricamento mappa...",
     "errorLoading": "Impossibile caricare la mappa",
     "attribution": "Dati mappa"
+  },
+  "addGirandola": {
+    "button": "Aggiungi Girandola",
+    "title": "Aggiungi Nuova Girandola",
+    "description": "Scegli come impostare la posizione",
+    "useGps": "Usa il Mio GPS",
+    "useGpsDescription": "Ottieni la tua posizione automaticamente",
+    "pickOnMap": "Scegli sulla Mappa",
+    "pickOnMapDescription": "Tocca sulla mappa per posizionare la tua Girandola",
+    "pickOnMapInstruction": "Tocca sulla mappa per selezionare la posizione",
+    "gettingLocation": "Ottenendo la tua posizione...",
+    "locationError": "Impossibile ottenere la posizione. Abilita il GPS o prova a scegliere sulla mappa.",
+    "saveSuccess": "Girandola aggiunta con successo!",
+    "saveError": "Impossibile salvare la Girandola. Riprova.",
+    "confirmLocation": "Aggiungere Girandola qui?"
   }
 }

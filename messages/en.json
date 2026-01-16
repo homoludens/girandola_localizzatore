@@ -3,7 +3,12 @@
     "home": "Home",
     "login": "Login",
     "language": "Language",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "saving": "Saving...",
+    "success": "Success",
+    "error": "Error"
   },
   "home": {
     "title": "Girandola Localizzatore",
@@ -24,5 +29,20 @@
     "loading": "Loading map...",
     "errorLoading": "Failed to load map",
     "attribution": "Map data"
+  },
+  "addGirandola": {
+    "button": "Add Girandola",
+    "title": "Add New Girandola",
+    "description": "Choose how to set the location",
+    "useGps": "Use My GPS",
+    "useGpsDescription": "Get your current location automatically",
+    "pickOnMap": "Pick on Map",
+    "pickOnMapDescription": "Tap on the map to place your Girandola",
+    "pickOnMapInstruction": "Tap on the map to select location",
+    "gettingLocation": "Getting your location...",
+    "locationError": "Could not get your location. Please enable GPS or try picking on map.",
+    "saveSuccess": "Girandola added successfully!",
+    "saveError": "Failed to save Girandola. Please try again.",
+    "confirmLocation": "Add Girandola here?"
   }
 }

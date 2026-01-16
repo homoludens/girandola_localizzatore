@@ -1,1 +1,8 @@
 @import "tailwindcss";
+
+/* Custom cursor for map pick mode */
+.cursor-crosshair,
+.cursor-crosshair .leaflet-container,
+.cursor-crosshair .leaflet-interactive {
+  cursor: crosshair !important;
+}
