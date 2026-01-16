@@ -2,10 +2,22 @@
   "common": {
     "home": "Home",
     "login": "Login",
-    "language": "Language"
+    "language": "Language",
+    "dashboard": "Dashboard"
   },
   "home": {
     "title": "Girandola Localizzatore",
     "description": "Track and share your favorite locations"
+  },
+  "auth": {
+    "loginTitle": "Welcome Back",
+    "loginDescription": "Sign in to access your Girandolas",
+    "signInWithGoogle": "Sign in with Google",
+    "signOut": "Sign out",
+    "userMenu": "User menu"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "description": "Your Girandola map will appear here"
   }
 }

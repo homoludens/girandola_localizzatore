@@ -4,8 +4,9 @@
 
 **Tech Stack Requirements:**
 
+0. **MOBILE FIRST** this app will be used on mobile phones. MUST be great on mobile.
 1. **Framework:** Next.js 16 (App Router).  
-2. **Hosting:** Optimized for Vercel Free Tier.  
+2. **Hosting:** Optimized for Vercel Free Tier. 
 3. **Styling:** Tailwind CSS (using `shadcn/ui` components is preferred for UI elements).  
 4. **Database:** Vercel KV (Redis) for storage.  
 5. **Authentication:** NextAuth.js (Auth.js) using Google Provider.  
