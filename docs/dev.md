@@ -10,7 +10,8 @@ Girandola Localizzatore is a mobile-first location tracking application where us
 |------------|---------|
 | Next.js 15 | App Router framework |
 | Tailwind CSS | Styling (with shadcn/ui components) |
-| Vercel KV | Redis-based storage |
+| Neon Postgres | Serverless PostgreSQL database |
+| Prisma ORM | Database access and schema management |
 | NextAuth.js v5 | Authentication (Google OAuth) |
 | react-leaflet | OpenStreetMap integration |
 | next-intl | Internationalization (en/it) |
@@ -41,12 +42,18 @@ src/
 │   └── map/
 │       ├── index.tsx       # Dynamic import wrapper (ssr: false)
 │       └── MapComponent.tsx # Leaflet map component
+├── generated/prisma/       # Generated Prisma client (gitignored)
 ├── i18n/
 │   ├── config.ts           # Locale configuration
 │   ├── navigation.ts       # Localized Link/useRouter
 │   ├── request.ts          # Server-side i18n
 │   └── routing.ts          # Routing configuration
+├── lib/
+│   └── prisma.ts           # Prisma client singleton with Neon config
 └── middleware.ts           # Combined i18n + auth middleware
+prisma/
+└── schema.prisma           # Database schema (User, Account, Session, Girandola)
+prisma.config.ts            # Prisma configuration
 messages/
 ├── en.json                 # English translations
 └── it.json                 # Italian translations
@@ -112,10 +119,13 @@ GOOGLE_CLIENT_ID=your_client_id
 GOOGLE_CLIENT_SECRET=your_client_secret
 
 # NextAuth secret (generate with: openssl rand -base64 32)
-AUTH_SECRET=your_random_secret
+NEXTAUTH_SECRET=your_random_secret
 
-# Optional: Explicitly set the auth URL
+# Auth URL
 NEXTAUTH_URL=http://localhost:3000
+
+# Neon Postgres Database
+DATABASE_URL=postgresql://user:password@host/database?sslmode=require
 ```
 
 ### Getting Google OAuth Credentials
@@ -135,6 +145,10 @@ NEXTAUTH_URL=http://localhost:3000
 ```bash
 # Install dependencies
 npm install
+
+# Setup database (first time only)
+npx prisma db push
+npx prisma generate
 
 # Run development server
 npm run dev
@@ -192,8 +206,119 @@ import { MapComponent } from "@/components/map";
 <MapComponent center={[45.0703, 7.6869]} zoom={15} />
 ```
 
+### Task 8: Database Migration - Prisma & Neon ✅
+
+**What was implemented:**
+
+1. **Installed packages:**
+   - `@prisma/client` - Prisma ORM client
+   - `@neondatabase/serverless` - Neon serverless adapter for edge functions
+   - `prisma` (devDependency) - Prisma CLI
+   - `dotenv` (devDependency) - Environment variable loading
+
+2. **Prisma Schema** (`prisma/schema.prisma`):
+   ```prisma
+   // NextAuth.js required models
+   model User {
+     id            String      @id @default(cuid())
+     name          String?
+     email         String?     @unique
+     emailVerified DateTime?
+     image         String?
+     accounts      Account[]
+     sessions      Session[]
+     girandolas    Girandola[]
+     createdAt     DateTime    @default(now())
+     updatedAt     DateTime    @updatedAt
+   }
+
+   model Account {
+     id                String  @id @default(cuid())
+     userId            String
+     type              String
+     provider          String
+     providerAccountId String
+     refresh_token     String? @db.Text
+     access_token      String? @db.Text
+     expires_at        Int?
+     token_type        String?
+     scope             String?
+     id_token          String? @db.Text
+     session_state     String?
+     user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+     @@unique([provider, providerAccountId])
+   }
+
+   model Session {
+     id           String   @id @default(cuid())
+     sessionToken String   @unique
+     userId       String
+     expires      DateTime
+     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+   }
+
+   model VerificationToken {
+     identifier String
+     token      String   @unique
+     expires    DateTime
+     @@unique([identifier, token])
+   }
+
+   model Girandola {
+     id        String   @id @default(uuid())
+     lat       Float
+     lng       Float
+     createdAt DateTime @default(now())
+     userId    String
+     user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+     @@index([userId])
+   }
+   ```
+
+3. **Prisma Client Singleton** (`src/lib/prisma.ts`):
+   - Prevents multiple Prisma instances in development
+   - Configured with Neon serverless connection pooling
+   - Logging enabled in development mode
+
+4. **Prisma Configuration** (`prisma.config.ts`):
+   - Loads environment variables from `.env.local` and `.env`
+   - Points to schema file location
+
+**Database Commands:**
+```bash
+# Push schema changes to database
+npx prisma db push
+
+# Generate Prisma client after schema changes
+npx prisma generate
+
+# Open Prisma Studio (database GUI)
+npx prisma studio
+
+# Create a migration (for production)
+npx prisma migrate dev --name migration_name
+```
+
+**Usage in code:**
+```typescript
+import { prisma } from "@/lib/prisma";
+
+// Create a Girandola
+const girandola = await prisma.girandola.create({
+  data: {
+    lat: 45.0703,
+    lng: 7.6869,
+    userId: user.id,
+  },
+});
+
+// Get all Girandolas for a user
+const girandolas = await prisma.girandola.findMany({
+  where: { userId: user.id },
+});
+```
+
 ## Upcoming Tasks
 
-- **Task 4**: Vercel KV database setup
-- **Task 5**: Add Girandola functionality (GPS + manual placement)
-- **Task 6**: Export to CSV feature
+- **Task 9**: Update NextAuth to use Prisma Adapter
+- **Task 10**: Update API routes to use Prisma instead of Vercel KV

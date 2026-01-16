@@ -4,11 +4,11 @@ A mobile-first location tracking application where users can log in, view a map,
 
 ## Tech Stack
 
-- **Framework:** Next.js 16 (App Router)
+- **Framework:** Next.js 15 (App Router)
 - **Hosting:** Optimized for Vercel Free Tier
 - **Styling:** Tailwind CSS
-- **Database:** Vercel KV (Redis)
-- **Authentication:** NextAuth.js (Auth.js) with Google Provider
+- **Database:** Neon Postgres with Prisma ORM
+- **Authentication:** NextAuth.js (Auth.js) with Google Provider + Prisma Adapter
 - **Maps:** react-leaflet (OpenStreetMap) - no API key required
 - **Internationalization:** next-intl (English & Italian)
 
@@ -26,17 +26,15 @@ Create a `.env.local` file in the root directory with the following variables:
 
 ```bash
 # NextAuth.js
-AUTH_SECRET=your-auth-secret-here
+NEXTAUTH_SECRET=your-auth-secret-here
+NEXTAUTH_URL=http://localhost:3000
 
 # Google OAuth
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 
-# Vercel KV (automatically set when linking KV database on Vercel)
-KV_URL=your-kv-url
-KV_REST_API_URL=your-kv-rest-api-url
-KV_REST_API_TOKEN=your-kv-rest-api-token
-KV_REST_API_READ_ONLY_TOKEN=your-kv-read-only-token
+# Neon Postgres Database
+DATABASE_URL=postgresql://user:password@host/database?sslmode=require
 ```
 
 ### Setting up Google OAuth
@@ -49,19 +47,24 @@ KV_REST_API_READ_ONLY_TOKEN=your-kv-read-only-token
    - `http://localhost:3000/api/auth/callback/google` (development)
    - `https://your-domain.vercel.app/api/auth/callback/google` (production)
 
-### Setting up Vercel KV
+### Setting up Neon Postgres
 
-1. Go to your Vercel dashboard
-2. Select your project
-3. Navigate to "Storage" tab
-4. Create a new KV database
-5. Environment variables will be automatically added to your project
+1. Go to [Neon Console](https://console.neon.tech/)
+2. Create a new project
+3. Copy the connection string from the dashboard
+4. Add it to your `.env.local` as `DATABASE_URL`
+5. Run `npx prisma db push` to create the tables
+6. Run `npx prisma generate` to generate the Prisma client
 
 ## Development
 
 ```bash
 # Install dependencies
 npm install
+
+# Setup database (first time only)
+npx prisma db push
+npx prisma generate
 
 # Run development server
 npm run dev
@@ -79,9 +82,8 @@ npm start
 
 1. Push your code to a Git repository (GitHub, GitLab, or Bitbucket)
 2. Import the project in [Vercel](https://vercel.com/new)
-3. Add the required environment variables
-4. Link a Vercel KV database from the Storage tab
-5. Deploy
+3. Add the required environment variables (including `DATABASE_URL` from Neon)
+4. Deploy
 
 The app will automatically deploy on every push to the main branch.
 
@@ -97,8 +99,13 @@ src/
 ├── auth/                        # NextAuth configuration
 ├── components/                  # React components
 │   └── map/                     # Map components
+├── generated/prisma/            # Generated Prisma client (gitignored)
 ├── i18n/                        # Internationalization config
+├── lib/
+│   └── prisma.ts                # Prisma client singleton
 └── types/                       # TypeScript types
+prisma/
+└── schema.prisma                # Database schema
 messages/                        # Translation files (en.json, it.json)
 ```
 
