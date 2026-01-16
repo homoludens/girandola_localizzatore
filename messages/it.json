@@ -1,0 +1,11 @@
+{
+  "common": {
+    "home": "Home",
+    "login": "Accedi",
+    "language": "Lingua"
+  },
+  "home": {
+    "title": "Girandola Localizzatore",
+    "description": "Traccia e condividi i tuoi luoghi preferiti"
+  }
+}
