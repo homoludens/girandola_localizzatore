@@ -12,6 +12,11 @@ export const metadata: Metadata = {
   appleWebApp: {
     title: "Girandola Localizzatore",
   },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    viewportFit: "cover",
+  },
 };
 
 type Props = {

@@ -192,8 +192,8 @@ export default function DashboardClient() {
       {/* Bottom Status Bar */}
       {!showConfirmBar && !pickMode && (
         <div
-          className="flex items-center justify-between border-t border-gray-200 bg-white px-3"
-          style={{ height: STATUS_BAR_HEIGHT }}
+          className="flex items-center justify-between border-t border-gray-200 bg-white px-3 pb-[env(safe-area-inset-bottom)]"
+          style={{ minHeight: STATUS_BAR_HEIGHT }}
         >
           {/* Location Button */}
           <button
@@ -268,8 +268,8 @@ export default function DashboardClient() {
       {/* Pick Mode Instruction Bar */}
       {pickMode && !showConfirmBar && (
         <div
-          className="flex items-center justify-between border-t border-gray-200 bg-gray-900 px-4 text-white"
-          style={{ height: STATUS_BAR_HEIGHT }}
+          className="flex items-center justify-between border-t border-gray-200 bg-gray-900 px-4 pb-[env(safe-area-inset-bottom)] text-white"
+          style={{ minHeight: STATUS_BAR_HEIGHT }}
         >
           <span className="text-sm font-medium">{t("pickOnMapInstruction")}</span>
           <button
@@ -284,7 +284,7 @@ export default function DashboardClient() {
       {/* Confirm Location Bar */}
       {showConfirmBar && pendingLocation && (
         <div
-          className="flex flex-col items-center justify-center border-t border-gray-200 bg-white px-4"
+          className="flex flex-col items-center justify-center border-t border-gray-200 bg-white px-4 pb-[env(safe-area-inset-bottom)]"
           style={{ minHeight: STATUS_BAR_HEIGHT }}
         >
           {/* GPS Accuracy Display */}
