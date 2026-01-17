@@ -31,7 +31,8 @@
   "map": {
     "loading": "Caricamento mappa...",
     "errorLoading": "Impossibile caricare la mappa",
-    "attribution": "Dati mappa"
+    "attribution": "Dati mappa",
+    "locateMe": "Mostra la mia posizione"
   },
   "addGirandola": {
     "button": "Aggiungi Girandola",

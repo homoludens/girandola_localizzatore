@@ -24,6 +24,7 @@ interface MapComponentProps {
   onMapClick?: (lat: number, lng: number) => void;
   pendingLocation?: { lat: number; lng: number } | null;
   newMarkerLabel?: string;
+  focusLocation?: { lat: number; lng: number } | null;
 }
 
 // Component to handle map resize when container changes
@@ -74,6 +75,19 @@ function PanToLocation({ location }: { location: { lat: number; lng: number } | 
   return null;
 }
 
+// Component to fly to focus location (used by "locate me" button)
+function FlyToLocation({ location }: { location: { lat: number; lng: number } | null }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (location) {
+      map.flyTo([location.lat, location.lng], 16);
+    }
+  }, [map, location]);
+
+  return null;
+}
+
 export default function MapComponent({
   center = [45.7024, 7.1665], // Default to Arvier, Valle d'Aosta, Italy
   zoom = 13,
@@ -83,6 +97,7 @@ export default function MapComponent({
   onMapClick,
   pendingLocation = null,
   newMarkerLabel = "New Girandola",
+  focusLocation = null,
 }: MapComponentProps) {
   return (
     <MapContainer
@@ -99,6 +114,7 @@ export default function MapComponent({
       <MapResizeHandler />
       <MapClickHandler onMapClick={onMapClick} pickMode={pickMode} />
       <PanToLocation location={pendingLocation} />
+      <FlyToLocation location={focusLocation} />
 
       {/* Render existing girandolas */}
       {girandolas.map((girandola) => (

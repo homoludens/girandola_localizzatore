@@ -10,16 +10,19 @@ import type { Girandola } from "@/types/girandola";
 export default function DashboardClient() {
   const t = useTranslations("addGirandola");
   const tCommon = useTranslations("common");
+  const tMap = useTranslations("map");
   const { getCurrentPosition } = useNativeGeolocation();
 
   const [girandolas, setGirandolas] = useState<Girandola[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pickMode, setPickMode] = useState(false);
   const [pendingLocation, setPendingLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [showConfirmBar, setShowConfirmBar] = useState(false);
   const [gpsAccuracy, setGpsAccuracy] = useState<number | null>(null);
+  const [myLocation, setMyLocation] = useState<{ lat: number; lng: number } | null>(null);
 
   // GPS accuracy threshold in meters
   const GPS_ACCURACY_THRESHOLD = 10;
@@ -127,6 +130,28 @@ export default function DashboardClient() {
     setGpsAccuracy(null);
   }, []);
 
+  const handleLocateMe = useCallback(async () => {
+    setIsLocating(true);
+    setError(null);
+
+    try {
+      const position = await getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 10000,
+      });
+
+      setMyLocation({
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+      });
+    } catch (err) {
+      console.error("Geolocation error:", err);
+      setError(t("locationError"));
+    } finally {
+      setIsLocating(false);
+    }
+  }, [getCurrentPosition, t]);
+
   const handleCloseDialog = useCallback(() => {
     setIsDialogOpen(false);
     setError(null);
@@ -141,7 +166,42 @@ export default function DashboardClient() {
         onMapClick={handleMapClick}
         pendingLocation={pendingLocation}
         newMarkerLabel={t("newMarker")}
+        focusLocation={myLocation}
       />
+
+      {/* GPS Locate Button */}
+      {!pickMode && !showConfirmBar && (
+        <button
+          onClick={handleLocateMe}
+          disabled={isLocating}
+          className="fixed bottom-6 right-4 z-[500] flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-lg transition-all hover:bg-gray-50 active:scale-95 disabled:opacity-50"
+          title={tMap("locateMe")}
+        >
+          {isLocating ? (
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600" />
+          ) : (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="h-5 w-5 text-blue-600"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"
+              />
+            </svg>
+          )}
+        </button>
+      )}
 
       {/* Floating Action Button */}
       {!pickMode && (

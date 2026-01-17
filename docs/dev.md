@@ -772,6 +772,42 @@ User taps "Add Girandola" → "Use My GPS"
     → User can retry or pick on map instead
 ```
 
+### Task 19: GPS Locate Button for Map Preview ✅
+
+**What was implemented:**
+
+1. **GPS Locate Button** - A floating button in the bottom-right corner that locates the user and centers the map:
+   - White circular button with blue location pin icon
+   - Shows loading spinner while getting GPS position
+   - Hidden during pick mode or when confirm bar is shown
+   - Uses `flyTo` animation to smoothly zoom to user's location (zoom level 16)
+
+2. **Map Component Enhancement** - Added `FlyToLocation` component and `focusLocation` prop:
+   - Separate from `pendingLocation` (which is used for adding markers)
+   - Uses Leaflet's `flyTo` for smooth animated transition
+   - Zooms to level 16 for detailed street view
+
+3. **Updated Translations** - Added new translation key:
+   - `map.locateMe` - "Show my location" / "Mostra la mia posizione"
+
+**Key Files:**
+| File | Purpose |
+|------|---------|
+| `src/components/DashboardClient.tsx` | Locate button UI and `handleLocateMe` function |
+| `src/components/map/MapComponent.tsx` | `FlyToLocation` component and `focusLocation` prop |
+| `messages/en.json` | English translation for locate button |
+| `messages/it.json` | Italian translation for locate button |
+
+**Flow:**
+```
+User taps GPS locate button (bottom-right)
+    → Button shows loading spinner
+    → GPS position retrieved
+    → Map smoothly flies to user's location
+    → User can see what's on the map at their location
+    → User can then tap "Add Girandola" if desired
+```
+
 ## API Endpoints
 
 | Endpoint | Method | Auth | Description |
