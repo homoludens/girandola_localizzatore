@@ -8,7 +8,7 @@ import { auth, signOut } from "@/auth";
 
 export async function Navigation() {
   const session = await auth();
-  const t = await getTranslations("common");
+  const tCommon = await getTranslations("common");
   const tContributors = await getTranslations("contributors");
   const tExport = await getTranslations("export");
 
@@ -24,7 +24,7 @@ export async function Navigation() {
             height={32}
             className="h-8 w-8"
           />
-          <span className="hidden sm:inline">{t("appName")}</span>
+          <span className="hidden sm:inline">{tCommon("appName")}</span>
         </Link>
         {/* Desktop navigation links */}
         <div className="hidden items-center gap-4 sm:flex">
@@ -46,7 +46,7 @@ export async function Navigation() {
       </div>
       <div className="flex items-center gap-2 sm:gap-4">
         <LanguageSwitcher />
-        {session?.user ? (
+        {session?.user && (
           <UserMenu
             user={session.user}
             signOutAction={async () => {
@@ -54,13 +54,6 @@ export async function Navigation() {
               await signOut({ redirectTo: "/" });
             }}
           />
-        ) : (
-          <Link
-            href="/login"
-            className="rounded bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 sm:px-4 sm:py-2 sm:text-sm"
-          >
-            {t("login")}
-          </Link>
         )}
       </div>
     </nav>
