@@ -9,7 +9,7 @@ export async function Navigation() {
   const t = await getTranslations("common");
 
   return (
-    <nav className="flex items-center justify-between border-b border-gray-200 bg-white px-3 py-2 shadow-sm sm:px-4 sm:py-3">
+    <nav className="relative z-50 flex items-center justify-between border-b border-gray-200 bg-white px-3 py-2 shadow-sm sm:px-4 sm:py-3">
       <div className="flex items-center gap-3 sm:gap-6">
         <Link href="/" className="text-lg font-bold text-gray-900 sm:text-xl">
           {t("appName")}
@@ -27,9 +27,7 @@ export async function Navigation() {
         )}
       </div>
       <div className="flex items-center gap-2 sm:gap-4">
-        <div className="hidden sm:block">
-          <LanguageSwitcher />
-        </div>
+        <LanguageSwitcher />
         {session?.user ? (
           <UserMenu
             user={session.user}

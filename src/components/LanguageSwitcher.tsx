@@ -22,7 +22,7 @@ export function LanguageSwitcher() {
 
   return (
     <div className="flex items-center gap-2">
-      <label htmlFor="language-select" className="text-sm font-medium">
+      <label htmlFor="language-select" className="hidden text-sm font-medium sm:inline">
         {t("language")}:
       </label>
       <select
