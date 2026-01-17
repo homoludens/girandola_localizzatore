@@ -50,7 +50,11 @@
   "export": {
     "button": "Export CSV",
     "exporting": "Exporting...",
-    "noData": "No data to export"
+    "noData": "No data to export",
+    "pageTitle": "Export Data",
+    "pageDescription": "Export your Girandolas to a CSV file",
+    "girandolasCount": "Girandolas",
+    "readyToExport": "Ready to export"
   },
   "contributors": {
     "title": "Top Contributors",

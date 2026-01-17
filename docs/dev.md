@@ -14,7 +14,7 @@ Girandola Localizzatore is a mobile-first location tracking application where us
 | Prisma ORM | Database access and schema management |
 | NextAuth.js v5 | Authentication (Google OAuth) |
 | react-leaflet | OpenStreetMap integration |
-| next-intl | Internationalization (en/it) |
+| next-intl | Internationalization (en/it, default: Italian) |
 
 ## Project Structure
 
@@ -23,34 +23,50 @@ src/
 ├── app/
 │   ├── [locale]/           # Localized routes (en, it)
 │   │   ├── layout.tsx      # Root layout with i18n provider
-│   │   ├── page.tsx        # Home page
+│   │   ├── page.tsx        # Home page (map, protected)
 │   │   ├── login/          # Login page
 │   │   │   └── page.tsx
-│   │   └── dashboard/      # Protected dashboard
+│   │   └── contributors/   # Top contributors page
 │   │       └── page.tsx
-│   └── api/
-│       └── auth/
-│           └── [...nextauth]/
-│               └── route.ts  # NextAuth API handler
+│   ├── api/
+│   │   ├── auth/
+│   │   │   └── [...nextauth]/
+│   │   │       └── route.ts  # NextAuth API handler
+│   │   ├── girandolas/
+│   │   │   ├── route.ts      # GET all, POST new
+│   │   │   └── export/
+│   │   │       └── route.ts  # GET user's own (for CSV)
+│   │   └── contributors/
+│   │       └── route.ts      # GET top contributors
+│   ├── icon.png            # Favicon (girandola image)
+│   ├── apple-icon.png      # Apple touch icon
+│   ├── favicon.ico         # Favicon
+│   └── manifest.json       # Web app manifest
 ├── auth/
 │   ├── config.ts           # NextAuth configuration
 │   └── index.ts            # Auth exports
 ├── components/
-│   ├── LanguageSwitcher.tsx
-│   ├── Navigation.tsx      # Main nav bar (server component)
+│   ├── LanguageSwitcher.tsx  # Language dropdown (visible on mobile)
+│   ├── Navigation.tsx      # Main nav bar with logo (z-[1000] for map overlay)
 │   ├── UserMenu.tsx        # User dropdown (client component)
+│   ├── DashboardClient.tsx # Main map interface with GPS/pick modes
+│   ├── AddGirandolaDialog.tsx # Modal for adding girandolas
 │   └── map/
 │       ├── index.tsx       # Dynamic import wrapper (ssr: false)
-│       └── MapComponent.tsx # Leaflet map component
+│       └── MapComponent.tsx # Leaflet map (default: Arvier, Italy)
 ├── generated/prisma/       # Generated Prisma client (gitignored)
 ├── i18n/
-│   ├── config.ts           # Locale configuration
+│   ├── config.ts           # Locale configuration (default: it)
 │   ├── navigation.ts       # Localized Link/useRouter
 │   ├── request.ts          # Server-side i18n
 │   └── routing.ts          # Routing configuration
 ├── lib/
 │   └── prisma.ts           # Prisma client singleton with Neon config
-└── middleware.ts           # Combined i18n + auth middleware
+└── middleware.ts           # Combined i18n + auth middleware (protects /)
+public/
+├── girandola.png           # Logo image
+├── web-app-manifest-192x192.png  # PWA icon
+└── web-app-manifest-512x512.png  # PWA icon
 prisma/
 └── schema.prisma           # Database schema (User, Account, Session, Girandola)
 prisma.config.ts            # Prisma configuration
@@ -67,7 +83,8 @@ messages/
 - Configured Tailwind CSS
 - Set up next-intl for internationalization
 - Created locale-based routing (`/en/...`, `/it/...`)
-- Implemented language switcher component
+- **Default language: Italian** (`src/i18n/config.ts`)
+- Implemented language switcher component (visible on mobile and desktop)
 - Auto-detects browser language preference
 
 ### Task 2: Authentication (NextAuth) ✅
@@ -91,10 +108,11 @@ messages/
 4. **Login Page** - Mobile-first design at `/[locale]/login`:
    - Redirects authenticated users to home
    - Google sign-in button with official branding
+   - **Girandola logo displayed above login form**
    - Full i18n support
 
 5. **Protected Routes** - Middleware combines next-intl with NextAuth:
-   - `/dashboard` requires authentication
+   - **Home page (`/`) requires authentication**
    - Unauthenticated users redirected to `/login`
    - Preserves locale in redirects
 
@@ -105,9 +123,11 @@ messages/
    - Click-outside-to-close behavior
 
 7. **Navigation Updates**:
-   - Shows "Dashboard" link when authenticated
+   - **Logo with girandola image** (text hidden on mobile)
+   - **Link to Top Contributors page**
    - Shows user menu when authenticated
    - Shows "Login" button when not authenticated
+   - **z-[1000] to stay above Leaflet map**
 
 ## Environment Variables
 
@@ -169,7 +189,7 @@ npm start
 2. **MapComponent** (`src/components/map/MapComponent.tsx`):
    - Renders OpenStreetMap tiles via `TileLayer`
    - Configurable props: `center`, `zoom`, `className`
-   - Default center: Turin, Italy (45.0703, 7.6869)
+   - **Default center: Arvier, Valle d'Aosta, Italy (45.7024, 7.1665)**
    - Includes `MapResizeHandler` to properly handle container resize events
    - Full-width and full-height within container
 
@@ -189,7 +209,8 @@ npm start
      });
      ```
 
-5. **Dashboard Integration**:
+5. **Home Page Integration**:
+   - **Map is now the home page** (previously dashboard)
    - Map takes full remaining screen height: `h-[calc(100vh-57px)]`
    - Accounts for navigation bar height
 
@@ -199,12 +220,31 @@ npm start
 ```tsx
 import { MapComponent } from "@/components/map";
 
-// Basic usage
+// Basic usage (defaults to Arvier)
 <MapComponent />
 
 // With custom center and zoom
-<MapComponent center={[45.0703, 7.6869]} zoom={15} />
+<MapComponent center={[45.7024, 7.1665]} zoom={15} />
 ```
+
+### Task 4: Add Girandola with GPS ✅
+
+**What was implemented:**
+
+1. **GPS Location Flow**:
+   - User clicks "Add Girandola" button
+   - Selects "Use My GPS" option
+   - **Map centers on GPS position before saving**
+   - User sees marker at their location
+   - User confirms or cancels the placement
+   - Girandola is saved only after confirmation
+
+2. **Pick on Map Flow**:
+   - User clicks "Add Girandola" button
+   - Selects "Pick on Map" option
+   - Map enters pick mode (crosshair cursor)
+   - User taps location on map
+   - Confirm bar appears with Cancel/Confirm buttons
 
 ### Task 8: Database Migration - Prisma & Neon ✅
 
@@ -400,6 +440,49 @@ const girandolas = await prisma.girandola.findMany({
 
 3. **Updated DashboardClient** - Export button now calls `/api/girandolas/export` instead of `/api/girandolas`.
 
+### Task 12: Top Contributors Page ✅
+
+**What was implemented:**
+
+1. **Contributors API** (`src/app/api/contributors/route.ts`):
+   - Returns top 20 users ranked by girandola count
+   - Includes user id, name, image, and count
+   - No authentication required
+
+2. **Contributors Page** (`src/app/[locale]/contributors/page.tsx`):
+   - Displays ranked list of contributors
+   - **Gold star icon for 1st place**
+   - **Silver star icon for 2nd place**
+   - **Bronze star icon for 3rd place**
+   - Numbers for ranks 4+
+   - User avatar and name
+   - Girandola count
+   - Subtle gradient background for top 3
+
+3. **Translations** - Added `contributors` namespace in both `en.json` and `it.json`
+
+4. **Navigation Link** - "Top Contributors" / "Top Contributori" link in navbar
+
+### Task 13: Favicon & Branding ✅
+
+**What was implemented:**
+
+1. **Girandola Logo** - Custom pinwheel/sprinkler image used throughout:
+   - `src/app/icon.png` - Main favicon
+   - `src/app/apple-icon.png` - Apple touch icon
+   - `src/app/favicon.ico` - ICO favicon
+   - `public/girandola.png` - Logo for navigation and login
+   - `public/web-app-manifest-192x192.png` - PWA icon
+   - `public/web-app-manifest-512x512.png` - PWA icon
+
+2. **Navigation Logo** - Girandola image in top-left with app name (name hidden on mobile)
+
+3. **Login Page Logo** - Large girandola image above login form
+
+4. **PWA Manifest** - `src/app/manifest.json` for web app installation
+
+5. **Apple Web App Title** - Configured via Next.js Metadata
+
 ## API Endpoints
 
 | Endpoint | Method | Auth | Description |
@@ -407,4 +490,5 @@ const girandolas = await prisma.girandola.findMany({
 | `/api/auth/[...nextauth]` | * | - | NextAuth handlers |
 | `/api/girandolas` | GET | No | Get all Girandolas |
 | `/api/girandolas` | POST | Yes | Create new Girandola |
-| `/api/girandolas/export` | GET | Yes | Get user's own Girandolas (for CSV)
+| `/api/girandolas/export` | GET | Yes | Get user's own Girandolas (for CSV) |
+| `/api/contributors` | GET | No | Get top 20 contributors |

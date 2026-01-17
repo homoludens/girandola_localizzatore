@@ -9,7 +9,6 @@ import type { Girandola } from "@/types/girandola";
 export default function DashboardClient() {
   const t = useTranslations("addGirandola");
   const tCommon = useTranslations("common");
-  const tExport = useTranslations("export");
 
   const [girandolas, setGirandolas] = useState<Girandola[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -18,7 +17,6 @@ export default function DashboardClient() {
   const [pickMode, setPickMode] = useState(false);
   const [pendingLocation, setPendingLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [showConfirmBar, setShowConfirmBar] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
 
   // Fetch girandolas on mount
   useEffect(() => {
@@ -126,49 +124,6 @@ export default function DashboardClient() {
     setError(null);
   }, []);
 
-  const handleExportCsv = useCallback(async () => {
-    setIsExporting(true);
-    try {
-      // Fetch user's own girandolas from export endpoint
-      const response = await fetch("/api/girandolas/export");
-      if (!response.ok) {
-        throw new Error("Failed to fetch data");
-      }
-      const data: Girandola[] = await response.json();
-
-      if (data.length === 0) {
-        alert(tExport("noData"));
-        return;
-      }
-
-      // Convert to CSV
-      const headers = ["Latitude", "Longitude", "User Email", "Date"];
-      const csvRows = [
-        headers.join(","),
-        ...data.map((g: any) => {
-          const date = new Date(g.createdAt).toISOString();
-          return [g.lat, g.lng, g.userEmail, date].join(",");
-        }),
-      ];
-      const csvString = csvRows.join("\n");
-
-      // Trigger download
-      const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "girandolas_export.csv";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error("Export failed:", err);
-    } finally {
-      setIsExporting(false);
-    }
-  }, [tExport]);
-
   return (
     <div className="relative h-[calc(100vh-57px)] w-full">
       {/* Map */}
@@ -179,40 +134,6 @@ export default function DashboardClient() {
         pendingLocation={pendingLocation}
         newMarkerLabel={t("newMarker")}
       />
-
-      {/* Export CSV Button */}
-      {!pickMode && (
-        <button
-          onClick={handleExportCsv}
-          disabled={isExporting}
-          className="fixed right-4 top-20 z-[500] flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-lg transition-all hover:bg-gray-50 active:scale-95 disabled:opacity-50"
-        >
-          {isExporting ? (
-            <>
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
-              {tExport("exporting")}
-            </>
-          ) : (
-            <>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                className="h-4 w-4"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
-                />
-              </svg>
-              {tExport("button")}
-            </>
-          )}
-        </button>
-      )}
 
       {/* Floating Action Button */}
       {!pickMode && (
