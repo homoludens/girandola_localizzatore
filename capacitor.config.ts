@@ -21,7 +21,7 @@ const config: CapacitorConfig = {
         twitter: false,
       },
       google: {
-             webClientId: "149267535489-obsu9vevmcu3ujod8a9tu31gvlu1kttk.apps.googleusercontent.com",
+             webClientId: "149267535489-534vviffsg2ft0hq0atjrq0nhh6pn696.apps.googleusercontent.com",
       }
     },
     GoogleAuth: {
