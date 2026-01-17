@@ -32,7 +32,8 @@
     "loading": "Loading map...",
     "errorLoading": "Failed to load map",
     "attribution": "Map data",
-    "locateMe": "Show my location"
+    "locateMe": "Show my location",
+    "noGpsData": "Tap location to get GPS"
   },
   "addGirandola": {
     "button": "Add Girandola",

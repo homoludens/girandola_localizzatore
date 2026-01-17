@@ -772,40 +772,63 @@ User taps "Add Girandola" → "Use My GPS"
     → User can retry or pick on map instead
 ```
 
-### Task 19: GPS Locate Button for Map Preview ✅
+### Task 19: Bottom Status Bar with GPS Controls ✅
 
 **What was implemented:**
 
-1. **GPS Locate Button** - A floating button in the bottom-right corner that locates the user and centers the map:
-   - White circular button with blue location pin icon
-   - Shows loading spinner while getting GPS position
-   - Hidden during pick mode or when confirm bar is shown
-   - Uses `flyTo` animation to smoothly zoom to user's location (zoom level 16)
+1. **Bottom Status Bar** - Replaced floating buttons with a fixed status bar at the bottom:
+   - Clean, non-overlapping UI below the map
+   - Contains: Location button (left), GPS status (center), Add marker button (right)
+   - 56px height, white background with top border
 
-2. **Map Component Enhancement** - Added `FlyToLocation` component and `focusLocation` prop:
+2. **GPS Status Display** - Shows current GPS position in the center:
+   - Displays shortened lat/lng coordinates (4 decimal places)
+   - Shows accuracy with color coding (green ≤10m, orange >10m)
+   - Shows "Tap location to get GPS" when no GPS data yet
+
+3. **Location Button** - Left side of status bar:
+   - Blue location pin icon
+   - Shows spinner while getting GPS position
+   - Centers map on user's location with smooth flyTo animation
+
+4. **Add Marker Button** - Right side of status bar:
+   - Blue circular button with plus icon
+   - Opens the "Add Girandola" dialog
+
+5. **Map Component Enhancement** - Added `FlyToLocation` component and `focusLocation` prop:
    - Separate from `pendingLocation` (which is used for adding markers)
    - Uses Leaflet's `flyTo` for smooth animated transition
    - Zooms to level 16 for detailed street view
 
-3. **Updated Translations** - Added new translation key:
+6. **Updated Translations** - Added new translation keys:
    - `map.locateMe` - "Show my location" / "Mostra la mia posizione"
+   - `map.noGpsData` - "Tap location to get GPS" / "Tocca posizione per GPS"
 
 **Key Files:**
 | File | Purpose |
 |------|---------|
-| `src/components/DashboardClient.tsx` | Locate button UI and `handleLocateMe` function |
+| `src/components/DashboardClient.tsx` | Status bar UI with all controls |
 | `src/components/map/MapComponent.tsx` | `FlyToLocation` component and `focusLocation` prop |
-| `messages/en.json` | English translation for locate button |
-| `messages/it.json` | Italian translation for locate button |
+| `messages/en.json` | English translations |
+| `messages/it.json` | Italian translations |
+
+**Status Bar Layout:**
+```
+┌─────────────────────────────────────────────────┐
+│  [📍]     45.7024, 7.1665  ±5m        [+]      │
+│  locate   GPS coordinates/accuracy    add      │
+└─────────────────────────────────────────────────┘
+```
 
 **Flow:**
 ```
-User taps GPS locate button (bottom-right)
+User taps location button
     → Button shows loading spinner
     → GPS position retrieved
     → Map smoothly flies to user's location
+    → Status bar shows coordinates and accuracy
     → User can see what's on the map at their location
-    → User can then tap "Add Girandola" if desired
+    → User can then tap "+" to add a Girandola
 ```
 
 ## API Endpoints

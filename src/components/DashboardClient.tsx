@@ -7,6 +7,9 @@ import AddGirandolaDialog from "@/components/AddGirandolaDialog";
 import { useNativeGeolocation } from "@/hooks/useNativeGeolocation";
 import type { Girandola } from "@/types/girandola";
 
+// Height of the status bar in pixels
+const STATUS_BAR_HEIGHT = 56;
+
 export default function DashboardClient() {
   const t = useTranslations("addGirandola");
   const tCommon = useTranslations("common");
@@ -23,6 +26,11 @@ export default function DashboardClient() {
   const [showConfirmBar, setShowConfirmBar] = useState(false);
   const [gpsAccuracy, setGpsAccuracy] = useState<number | null>(null);
   const [myLocation, setMyLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [currentGpsStatus, setCurrentGpsStatus] = useState<{
+    lat: number;
+    lng: number;
+    accuracy: number;
+  } | null>(null);
 
   // GPS accuracy threshold in meters
   const GPS_ACCURACY_THRESHOLD = 10;
@@ -140,9 +148,16 @@ export default function DashboardClient() {
         timeout: 10000,
       });
 
-      setMyLocation({
+      const newLocation = {
         lat: position.coords.latitude,
         lng: position.coords.longitude,
+      };
+
+      setMyLocation(newLocation);
+      setCurrentGpsStatus({
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        accuracy: position.coords.accuracy,
       });
     } catch (err) {
       console.error("Geolocation error:", err);
@@ -157,79 +172,109 @@ export default function DashboardClient() {
     setError(null);
   }, []);
 
-  return (
-    <div className="relative h-[calc(100vh-57px)] w-full">
-      {/* Map */}
-      <MapComponent
-        girandolas={girandolas}
-        pickMode={pickMode}
-        onMapClick={handleMapClick}
-        pendingLocation={pendingLocation}
-        newMarkerLabel={t("newMarker")}
-        focusLocation={myLocation}
-      />
+  // Format coordinate for display (shortened)
+  const formatCoord = (coord: number) => coord.toFixed(4);
 
-      {/* GPS Locate Button */}
-      {!pickMode && !showConfirmBar && (
-        <button
-          onClick={handleLocateMe}
-          disabled={isLocating}
-          className="fixed bottom-6 right-4 z-[500] flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-lg transition-all hover:bg-gray-50 active:scale-95 disabled:opacity-50"
-          title={tMap("locateMe")}
+  return (
+    <div className="relative flex h-[calc(100vh-57px)] w-full flex-col">
+      {/* Map - takes remaining space above status bar */}
+      <div className="flex-1">
+        <MapComponent
+          girandolas={girandolas}
+          pickMode={pickMode}
+          onMapClick={handleMapClick}
+          pendingLocation={pendingLocation}
+          newMarkerLabel={t("newMarker")}
+          focusLocation={myLocation}
+        />
+      </div>
+
+      {/* Bottom Status Bar */}
+      {!showConfirmBar && !pickMode && (
+        <div
+          className="flex items-center justify-between border-t border-gray-200 bg-white px-3"
+          style={{ height: STATUS_BAR_HEIGHT }}
         >
-          {isLocating ? (
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600" />
-          ) : (
+          {/* Location Button */}
+          <button
+            onClick={handleLocateMe}
+            disabled={isLocating}
+            className="flex h-10 w-10 items-center justify-center rounded-full text-blue-600 transition-colors hover:bg-blue-50 active:bg-blue-100 disabled:opacity-50"
+            title={tMap("locateMe")}
+          >
+            {isLocating ? (
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600" />
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+                className="h-6 w-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"
+                />
+              </svg>
+            )}
+          </button>
+
+          {/* GPS Status */}
+          <div className="flex flex-col items-center text-xs text-gray-500">
+            {currentGpsStatus ? (
+              <>
+                <span className="font-mono">
+                  {formatCoord(currentGpsStatus.lat)}, {formatCoord(currentGpsStatus.lng)}
+                </span>
+                <span className={`font-medium ${
+                  currentGpsStatus.accuracy <= GPS_ACCURACY_THRESHOLD ? "text-green-600" : "text-orange-500"
+                }`}>
+                  ±{Math.round(currentGpsStatus.accuracy)}m
+                </span>
+              </>
+            ) : (
+              <span className="text-gray-400">{tMap("noGpsData")}</span>
+            )}
+          </div>
+
+          {/* Add Marker Button */}
+          <button
+            onClick={() => setIsDialogOpen(true)}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white transition-colors hover:bg-blue-700 active:bg-blue-800"
+            title={t("button")}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
-              strokeWidth={2}
+              strokeWidth={2.5}
               stroke="currentColor"
-              className="h-5 w-5 text-blue-600"
+              className="h-5 w-5"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
             </svg>
-          )}
-        </button>
-      )}
-
-      {/* Floating Action Button */}
-      {!pickMode && (
-        <button
-          onClick={() => setIsDialogOpen(true)}
-          className="fixed bottom-6 left-1/2 z-[500] flex -translate-x-1/2 items-center gap-2 rounded-full bg-blue-600 px-6 py-3 font-medium text-white shadow-lg transition-all hover:bg-blue-700 active:scale-95"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={2}
-            stroke="currentColor"
-            className="h-5 w-5"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-          {t("button")}
-        </button>
+          </button>
+        </div>
       )}
 
       {/* Pick Mode Instruction Bar */}
       {pickMode && !showConfirmBar && (
-        <div className="fixed bottom-6 left-1/2 z-[500] flex -translate-x-1/2 items-center gap-4 rounded-full bg-gray-900 px-6 py-3 text-white shadow-lg">
+        <div
+          className="flex items-center justify-between border-t border-gray-200 bg-gray-900 px-4 text-white"
+          style={{ height: STATUS_BAR_HEIGHT }}
+        >
           <span className="text-sm font-medium">{t("pickOnMapInstruction")}</span>
           <button
             onClick={handleCancelPick}
-            className="rounded-full bg-white/20 px-3 py-1 text-sm transition-colors hover:bg-white/30"
+            className="rounded-full bg-white/20 px-4 py-1.5 text-sm font-medium transition-colors hover:bg-white/30"
           >
             {tCommon("cancel")}
           </button>
@@ -238,23 +283,15 @@ export default function DashboardClient() {
 
       {/* Confirm Location Bar */}
       {showConfirmBar && pendingLocation && (
-        <div className="fixed bottom-6 left-1/2 z-[500] flex -translate-x-1/2 flex-col items-center gap-2 rounded-2xl bg-white p-3 shadow-xl">
+        <div
+          className="flex flex-col items-center justify-center border-t border-gray-200 bg-white px-4"
+          style={{ minHeight: STATUS_BAR_HEIGHT }}
+        >
           {/* GPS Accuracy Display */}
           {gpsAccuracy !== null && (
-            <div className={`flex items-center gap-2 text-sm font-medium ${
+            <div className={`mb-1 flex items-center gap-1 text-xs font-medium ${
               gpsAccuracy <= GPS_ACCURACY_THRESHOLD ? "text-green-600" : "text-red-600"
             }`}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                className="h-4 w-4"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
-              </svg>
               <span>
                 {t("accuracy")}: {Math.round(gpsAccuracy)}m
                 {gpsAccuracy > GPS_ACCURACY_THRESHOLD && (
@@ -263,31 +300,33 @@ export default function DashboardClient() {
               </span>
             </div>
           )}
-          <div className="flex items-center gap-3">
-            <span className="px-3 text-sm font-medium text-gray-700">
+          <div className="flex w-full items-center justify-between gap-3">
+            <span className="text-sm font-medium text-gray-700">
               {t("confirmLocation")}
             </span>
-            <button
-              onClick={handleCancelPick}
-              disabled={isLoading}
-              className="rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 disabled:opacity-50"
-            >
-              {tCommon("cancel")}
-            </button>
-            <button
-              onClick={handleConfirmLocation}
-              disabled={isLoading || (gpsAccuracy !== null && gpsAccuracy > GPS_ACCURACY_THRESHOLD)}
-              className="flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? (
-                <>
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                  {tCommon("saving")}
-                </>
-              ) : (
-                tCommon("confirm")
-              )}
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={handleCancelPick}
+                disabled={isLoading}
+                className="rounded-full bg-gray-100 px-4 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 disabled:opacity-50"
+              >
+                {tCommon("cancel")}
+              </button>
+              <button
+                onClick={handleConfirmLocation}
+                disabled={isLoading || (gpsAccuracy !== null && gpsAccuracy > GPS_ACCURACY_THRESHOLD)}
+                className="flex items-center gap-2 rounded-full bg-blue-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    {tCommon("saving")}
+                  </>
+                ) : (
+                  tCommon("confirm")
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}
