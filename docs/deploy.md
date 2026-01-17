@@ -420,6 +420,101 @@ cd android && ./gradlew bundleRelease
 cd android && ./gradlew clean
 ```
 
+---
+
+# Native Geolocation for Android (Task 16)
+
+The app uses `@capacitor/geolocation` for native GPS functionality on Android. This provides a better user experience with proper Android permission prompts.
+
+## How It Works
+
+1. **Platform Detection**: The `useNativeGeolocation` hook detects if the app is running on a native platform.
+
+2. **Permission Handling**: On Android, the Capacitor Geolocation plugin handles:
+   - Checking if location permissions are granted
+   - Requesting permissions via native Android dialog
+   - Returning the user's current position with high accuracy
+
+3. **Fallback to Browser API**: On web (Vercel), the hook falls back to the standard browser `navigator.geolocation` API.
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        Android App                               │
+├─────────────────────────────────────────────────────────────────┤
+│  DashboardClient Component                                       │
+│  └── useNativeGeolocation hook                                   │
+│      ├── Detects native platform                                │
+│      ├── Uses Capacitor Geolocation plugin                      │
+│      ├── Requests ACCESS_FINE_LOCATION permission               │
+│      └── Returns GPS coordinates                                │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## Key Files
+
+| File | Purpose |
+|------|---------|
+| `src/hooks/useNativeGeolocation.ts` | Hook for native/web geolocation |
+| `src/components/DashboardClient.tsx` | Uses hook for "Add Girandola" GPS feature |
+| `android/app/src/main/AndroidManifest.xml` | Declares location permissions |
+
+## Android Permissions
+
+The following permissions are configured in `AndroidManifest.xml`:
+
+```xml
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+<uses-feature android:name="android.hardware.location.gps" />
+```
+
+- `ACCESS_COARSE_LOCATION`: Approximate location via network
+- `ACCESS_FINE_LOCATION`: Precise GPS location
+- `android.hardware.location.gps`: Declares GPS feature usage
+
+## Testing Native Geolocation
+
+1. **Sync Capacitor plugins**:
+   ```bash
+   npx cap sync android
+   ```
+
+2. **Run on Android device/emulator**:
+   ```bash
+   npx cap run android
+   ```
+
+3. **Test the GPS flow**:
+   - Tap "Add Girandola" button
+   - Select "Use My GPS"
+   - Android permission dialog should appear asking for location access
+   - After granting permission, map should center on your location
+   - Confirm to save the girandola
+
+## Troubleshooting Native Geolocation
+
+### Permission Denied
+
+- User may have denied location permission
+- Go to Android Settings > Apps > Girandola > Permissions > Location
+- Enable location permission
+
+### GPS Not Working on Emulator
+
+- In Android Studio, open Extended Controls (three dots)
+- Go to Location tab
+- Set a mock location or enable GPS simulation
+
+### Location Not Accurate
+
+- Ensure `enableHighAccuracy: true` is set
+- Check if device GPS is enabled in Android settings
+- Test outdoors for better GPS signal
+
+---
+
 ## Troubleshooting Android
 
 ### "Unable to load URL" or Blank Screen

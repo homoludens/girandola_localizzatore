@@ -4,11 +4,13 @@ import { useState, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { MapComponent } from "@/components/map";
 import AddGirandolaDialog from "@/components/AddGirandolaDialog";
+import { useNativeGeolocation } from "@/hooks/useNativeGeolocation";
 import type { Girandola } from "@/types/girandola";
 
 export default function DashboardClient() {
   const t = useTranslations("addGirandola");
   const tCommon = useTranslations("common");
+  const { getCurrentPosition } = useNativeGeolocation();
 
   const [girandolas, setGirandolas] = useState<Girandola[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -65,34 +67,31 @@ export default function DashboardClient() {
     }
   }, [t]);
 
-  const handleUseGps = useCallback(() => {
+  const handleUseGps = useCallback(async () => {
     setIsLoading(true);
     setError(null);
 
-    if (!navigator.geolocation) {
-      setError(t("locationError"));
-      setIsLoading(false);
-      return;
-    }
+    try {
+      // Use native geolocation on Android, browser API on web
+      const position = await getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 10000,
+      });
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        // Set pending location to center map and show marker
-        setPendingLocation({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        });
-        setIsDialogOpen(false);
-        setShowConfirmBar(true);
-        setIsLoading(false);
-      },
-      () => {
-        setError(t("locationError"));
-        setIsLoading(false);
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-  }, [t]);
+      // Set pending location to center map and show marker
+      setPendingLocation({
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+      });
+      setIsDialogOpen(false);
+      setShowConfirmBar(true);
+    } catch (err) {
+      console.error("Geolocation error:", err);
+      setError(t("locationError"));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [t, getCurrentPosition]);
 
   const handlePickOnMap = useCallback(() => {
     setIsDialogOpen(false);

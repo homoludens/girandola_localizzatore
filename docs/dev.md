@@ -645,6 +645,47 @@ Android User clicks "Sign in with Google"
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_web_client_id
 ```
 
+### Task 16: Optimizing Map & GPS for Android ✅
+
+**What was implemented:**
+
+1. **Installed `@capacitor/geolocation`** - Native Capacitor plugin for GPS functionality on Android.
+
+2. **useNativeGeolocation Hook** (`src/hooks/useNativeGeolocation.ts`):
+   - Detects if running on native platform via `Capacitor.isNativePlatform()`
+   - Uses Capacitor Geolocation plugin on Android with proper permission handling
+   - Falls back to browser `navigator.geolocation` API on web
+   - Handles permission checking and requesting via native Android dialogs
+
+3. **Updated DashboardClient** (`src/components/DashboardClient.tsx`):
+   - Now uses `useNativeGeolocation` hook for GPS functionality
+   - "Use My GPS" button triggers native permission prompt on Android
+   - Same codebase works on both Vercel (web) and Android
+
+4. **Android Permissions** (`android/app/src/main/AndroidManifest.xml`):
+   - Added `ACCESS_COARSE_LOCATION` permission
+   - Added `ACCESS_FINE_LOCATION` permission for precise GPS
+   - Declared `android.hardware.location.gps` feature
+
+**Flow:**
+```
+User taps "Add Girandola" → "Use My GPS"
+    → useNativeGeolocation detects platform
+    → Android: Capacitor Geolocation checks permissions
+    → If not granted: Native Android permission dialog appears
+    → User grants permission
+    → GPS position retrieved with high accuracy
+    → Map centers on user location
+    → User confirms to save girandola
+```
+
+**Key Files:**
+| File | Purpose |
+|------|---------|
+| `src/hooks/useNativeGeolocation.ts` | Hook for native/web geolocation |
+| `src/components/DashboardClient.tsx` | Uses hook for GPS feature |
+| `android/app/src/main/AndroidManifest.xml` | Location permissions |
+
 ## API Endpoints
 
 | Endpoint | Method | Auth | Description |
