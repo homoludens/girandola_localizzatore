@@ -631,13 +631,28 @@ Android User clicks "Sign in with Google"
     → useNativeAuth detects native platform
     → SocialLogin.login() shows native account picker
     → User selects Google account
-    → Returns ID token
+    → Returns { provider: 'google', result: { idToken, profile, ... } }
+    → idToken extracted from result.idToken (not top-level)
     → signIn("google-native", {idToken}) called
     → NextAuth validates token with Google API
     → User found/created in Postgres
     → JWT session created
     → User redirected to home page
 ```
+
+**Important:** The `@capgo/capacitor-social-login` plugin returns a wrapped response structure:
+```typescript
+{
+  provider: 'google',
+  result: {
+    idToken: string | null,
+    accessToken: { token: string } | null,
+    profile: { email, name, ... },
+    responseType: 'online'
+  }
+}
+```
+The `idToken` must be accessed via `response.result.idToken`, not `response.idToken`.
 
 **Environment Variables:**
 ```bash
