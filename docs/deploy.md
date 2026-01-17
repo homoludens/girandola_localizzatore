@@ -174,3 +174,239 @@ You can configure branch settings in Vercel project settings.
 3. Update DNS records as instructed
 4. Update `NEXTAUTH_URL` to your custom domain
 5. Add new redirect URI in Google OAuth settings
+
+---
+
+# Deploying the Android App
+
+The Android app uses Capacitor to wrap the web application in a native WebView. This approach allows the same codebase to work on both Vercel (web) and Android.
+
+## Prerequisites
+
+1. [Android Studio](https://developer.android.com/studio) installed
+2. Android SDK configured (Android Studio will guide you)
+3. Your app deployed to Vercel (see above)
+4. A physical Android device or emulator for testing
+
+## Step 1: Configure Capacitor for Production
+
+Edit `capacitor.config.ts` to point to your Vercel URL:
+
+```typescript
+import type { CapacitorConfig } from '@capacitor/cli';
+
+const config: CapacitorConfig = {
+  appId: 'com.girandola.app',
+  appName: 'Girandola Localizzatore',
+  webDir: 'out',
+  server: {
+    // Set your production Vercel URL here
+    url: 'https://girandola.vercel.app',
+    cleartext: false, // Use HTTPS in production
+  },
+};
+
+export default config;
+```
+
+## Step 2: Add Android Platform (If Not Already Done)
+
+```bash
+# Create placeholder for web assets
+mkdir -p out && echo '<!DOCTYPE html><html><body>Loading...</body></html>' > out/index.html
+
+# Add Android platform
+npx cap add android
+```
+
+## Step 3: Sync and Open in Android Studio
+
+```bash
+# Copy web assets and sync plugins
+npx cap sync android
+
+# Open in Android Studio
+npx cap open android
+```
+
+## Step 4: Configure Google OAuth for Android
+
+For Google Sign-In to work in the Android app, you need to add the Android app to your Google OAuth configuration:
+
+### 4.1 Get Your SHA-1 Fingerprint
+
+In Android Studio terminal or your system terminal:
+
+```bash
+# For debug builds
+cd android
+./gradlew signingReport
+```
+
+Look for the SHA-1 fingerprint under the `:app:signingReport` section.
+
+### 4.2 Add Android Client in Google Cloud Console
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Navigate to "APIs & Services" > "Credentials"
+3. Click "Create Credentials" > "OAuth client ID"
+4. Select "Android" as application type
+5. Enter your package name: `com.girandola.app`
+6. Paste your SHA-1 fingerprint
+7. Click "Create"
+
+### 4.3 Update OAuth Consent Screen (If Needed)
+
+Ensure your OAuth consent screen includes:
+- App name: Girandola Localizzatore
+- Authorized domains: your Vercel domain
+
+## Step 5: Build the Android App
+
+### Debug Build (For Testing)
+
+In Android Studio:
+1. Select "Build" > "Build Bundle(s) / APK(s)" > "Build APK(s)"
+2. The APK will be at `android/app/build/outputs/apk/debug/app-debug.apk`
+
+Or via command line:
+```bash
+cd android
+./gradlew assembleDebug
+```
+
+### Release Build (For Play Store)
+
+1. Generate a signing key:
+   ```bash
+   keytool -genkey -v -keystore girandola-release.keystore -alias girandola -keyalg RSA -keysize 2048 -validity 10000
+   ```
+
+2. Configure signing in `android/app/build.gradle`:
+   ```gradle
+   android {
+       signingConfigs {
+           release {
+               storeFile file('path/to/girandola-release.keystore')
+               storePassword 'your-store-password'
+               keyAlias 'girandola'
+               keyPassword 'your-key-password'
+           }
+       }
+       buildTypes {
+           release {
+               signingConfig signingConfigs.release
+               minifyEnabled true
+               proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+           }
+       }
+   }
+   ```
+
+3. Build the release APK or AAB:
+   ```bash
+   cd android
+   ./gradlew assembleRelease
+   # Or for App Bundle (recommended for Play Store)
+   ./gradlew bundleRelease
+   ```
+
+## Step 6: Test on Device
+
+### Using ADB (Android Debug Bridge)
+
+```bash
+# List connected devices
+adb devices
+
+# Install debug APK
+adb install android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+### Using Android Studio
+
+1. Connect your Android device via USB
+2. Enable USB debugging on your device
+3. Click the "Run" button in Android Studio
+4. Select your device from the list
+
+## Step 7: Publish to Google Play Store (Optional)
+
+1. Create a [Google Play Developer account](https://play.google.com/console/) ($25 one-time fee)
+2. Create a new app in the Play Console
+3. Fill in the store listing details
+4. Upload your signed AAB (App Bundle) file
+5. Complete the content rating questionnaire
+6. Set up pricing and distribution
+7. Submit for review
+
+## Android Development Commands Reference
+
+```bash
+# Sync web assets to Android
+npx cap sync android
+
+# Copy web assets only (faster)
+npx cap copy android
+
+# Open in Android Studio
+npx cap open android
+
+# Run on connected device (requires Android Studio setup)
+npx cap run android
+
+# Build debug APK
+cd android && ./gradlew assembleDebug
+
+# Build release AAB
+cd android && ./gradlew bundleRelease
+
+# Clean build
+cd android && ./gradlew clean
+```
+
+## Troubleshooting Android
+
+### "Unable to load URL" or Blank Screen
+
+- Verify `server.url` in `capacitor.config.ts` is correct
+- Ensure your Vercel deployment is accessible
+- Check if `cleartext: true` is needed for HTTP (development only)
+
+### Google Sign-In Not Working
+
+- Verify SHA-1 fingerprint matches in Google Cloud Console
+- Check package name is exactly `com.girandola.app`
+- Ensure both Web and Android OAuth clients exist
+- Check Android Studio Logcat for detailed errors
+
+### Build Errors
+
+```bash
+# Clean and rebuild
+cd android
+./gradlew clean
+./gradlew build
+
+# Sync Gradle files
+# In Android Studio: File > Sync Project with Gradle Files
+```
+
+### App Crashes on Launch
+
+- Check Logcat in Android Studio for stack traces
+- Verify minimum SDK version compatibility
+- Ensure all Capacitor plugins are synced: `npx cap sync android`
+
+## Updating the Android App
+
+When you update the web app on Vercel, the Android app automatically loads the new version (since it uses WebView). No app update is needed for web content changes.
+
+For native changes (Capacitor plugins, Android configuration):
+
+```bash
+# Sync changes
+npx cap sync android
+
+# Rebuild and redistribute the APK/AAB
+```
