@@ -494,19 +494,29 @@ const girandolas = await prisma.girandola.findMany({
    - `@capacitor/core` - Core Capacitor runtime
    - `@capacitor/cli` - CLI tools for building and syncing
    - `@capacitor/android` - Android platform support
+   - `@capgo/capacitor-social-login` - Native Google Sign-In support
 
 2. **Capacitor Configuration** (`capacitor.config.ts`):
    ```typescript
    import type { CapacitorConfig } from '@capacitor/cli';
 
    const config: CapacitorConfig = {
-     appId: 'com.girandola.app',
+     appId: 'net.droopia.girandola',
      appName: 'Girandola Localizzatore',
      webDir: 'out',
      server: {
-       // For production, set your Vercel URL:
-       // url: 'https://girandola.vercel.app',
-       cleartext: true, // Allow HTTP for development
+       url: 'https://girandola-localizzatore.vercel.app',
+       cleartext: true,
+     },
+     plugins: {
+       SocialLogin: {
+         providers: {
+           google: true,
+           facebook: false,
+           apple: false,
+           twitter: false,
+         },
+       },
      },
    };
 
@@ -552,11 +562,26 @@ npx cap open android
 npx cap sync android
 ```
 
-**Google OAuth for Android:**
+**Native Google Sign-In for Android:**
 
-To enable Google Sign-In in the Android app, add these redirect URIs in Google Cloud Console:
-- `com.girandola.app:/oauth2redirect` (for deep linking)
-- Your Vercel URL callback (already configured)
+The app uses `@capgo/capacitor-social-login` for native Google authentication. Setup requires:
+
+1. **Get SHA-1 Fingerprint:**
+   ```bash
+   cd android && ./gradlew signingReport
+   ```
+
+2. **Create Android OAuth Client in Google Cloud Console:**
+   - Type: Android
+   - Package name: `net.droopia.girandola`
+   - SHA-1: From step 1
+
+3. **Configure Web Client ID in `strings.xml`:**
+   ```xml
+   <string name="server_client_id">YOUR_WEB_CLIENT_ID.apps.googleusercontent.com</string>
+   ```
+
+See `docs/deploy.md` for detailed instructions.
 
 **Project Structure Addition:**
 ```

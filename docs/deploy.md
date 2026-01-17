@@ -196,13 +196,23 @@ Edit `capacitor.config.ts` to point to your Vercel URL:
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.girandola.app',
+  appId: 'net.droopia.girandola',
   appName: 'Girandola Localizzatore',
   webDir: 'out',
   server: {
     // Set your production Vercel URL here
-    url: 'https://girandola.vercel.app',
+    url: 'https://girandola-localizzatore.vercel.app',
     cleartext: false, // Use HTTPS in production
+  },
+  plugins: {
+    SocialLogin: {
+      providers: {
+        google: true,
+        facebook: false,
+        apple: false,
+        twitter: false,
+      },
+    },
   },
 };
 
@@ -229,37 +239,81 @@ npx cap sync android
 npx cap open android
 ```
 
-## Step 4: Configure Google OAuth for Android
+## Step 4: Configure Native Google Sign-In for Android
 
-For Google Sign-In to work in the Android app, you need to add the Android app to your Google OAuth configuration:
+The Android app uses the `@capgo/capacitor-social-login` plugin for native Google authentication. This allows users to sign in using their device's Google account without a browser popup.
 
 ### 4.1 Get Your SHA-1 Fingerprint
 
-In Android Studio terminal or your system terminal:
+The SHA-1 fingerprint is required to register your Android app with Google. You need fingerprints for both debug and release builds.
+
+#### Debug Fingerprint (for development)
 
 ```bash
-# For debug builds
+# Option 1: Using Gradle (recommended)
 cd android
 ./gradlew signingReport
 ```
 
-Look for the SHA-1 fingerprint under the `:app:signingReport` section.
+Look for the SHA-1 fingerprint under the `:app:signingReport` section, specifically the `debug` variant.
 
-### 4.2 Add Android Client in Google Cloud Console
+```bash
+# Option 2: Using keytool directly
+# Default debug keystore location on Linux/macOS:
+keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android
+
+# Default debug keystore location on Windows:
+keytool -list -v -keystore %USERPROFILE%\.android\debug.keystore -alias androiddebugkey -storepass android -keypass android
+```
+
+#### Release Fingerprint (for production)
+
+```bash
+keytool -list -v -keystore /path/to/your-release.keystore -alias your-key-alias
+```
+
+You'll be prompted for the keystore password.
+
+### 4.2 Create Android OAuth Client in Google Cloud Console
+
+You need a **separate Android OAuth client** (different from your Web client):
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Navigate to "APIs & Services" > "Credentials"
 3. Click "Create Credentials" > "OAuth client ID"
-4. Select "Android" as application type
-5. Enter your package name: `com.girandola.app`
-6. Paste your SHA-1 fingerprint
+4. Select **"Android"** as application type
+5. Enter your package name: `net.droopia.girandola`
+6. Paste your **SHA-1 fingerprint** (from step 4.1)
 7. Click "Create"
 
-### 4.3 Update OAuth Consent Screen (If Needed)
+**Important:** You need separate Android OAuth clients for debug and release if using different signing keys:
+- Create one with debug SHA-1 for development
+- Create another with release SHA-1 for production
+
+### 4.3 Configure the Web Client ID in strings.xml
+
+The native Google Sign-In requires your **Web Client ID** (not the Android Client ID) to work with your backend:
+
+1. Find your **Web Client ID** in Google Cloud Console > Credentials
+   - Look for the OAuth 2.0 Client ID with type "Web application"
+   - It looks like: `123456789-abcdefg.apps.googleusercontent.com`
+
+2. Edit `android/app/src/main/res/values/strings.xml`:
+   ```xml
+   <string name="server_client_id">YOUR_WEB_CLIENT_ID.apps.googleusercontent.com</string>
+   ```
+
+3. Sync the changes:
+   ```bash
+   npx cap sync android
+   ```
+
+### 4.4 Verify OAuth Consent Screen
 
 Ensure your OAuth consent screen includes:
 - App name: Girandola Localizzatore
 - Authorized domains: your Vercel domain
+- Scopes: email, profile, openid
 
 ## Step 5: Build the Android App
 
@@ -376,9 +430,10 @@ cd android && ./gradlew clean
 ### Google Sign-In Not Working
 
 - Verify SHA-1 fingerprint matches in Google Cloud Console
-- Check package name is exactly `com.girandola.app`
-- Ensure both Web and Android OAuth clients exist
-- Check Android Studio Logcat for detailed errors
+- Check package name is exactly `net.droopia.girandola`
+- Ensure both Web and Android OAuth clients exist in Google Cloud Console
+- Verify `server_client_id` in `strings.xml` matches your Web Client ID
+- Check Android Studio Logcat for detailed errors (filter by "SocialLogin" or "GoogleAuth")
 
 ### Build Errors
 
