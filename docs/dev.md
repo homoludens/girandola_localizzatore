@@ -15,6 +15,7 @@ Girandola Localizzatore is a mobile-first location tracking application where us
 | NextAuth.js v5 | Authentication (Google OAuth) |
 | react-leaflet | OpenStreetMap integration |
 | next-intl | Internationalization (en/it, default: Italian) |
+| Capacitor | Android app wrapper (WebView) |
 
 ## Project Structure
 
@@ -73,6 +74,8 @@ prisma.config.ts            # Prisma configuration
 messages/
 ├── en.json                 # English translations
 └── it.json                 # Italian translations
+android/                    # Capacitor Android project (gitignored)
+capacitor.config.ts         # Capacitor configuration
 ```
 
 ## Implementation Progress
@@ -482,6 +485,90 @@ const girandolas = await prisma.girandola.findMany({
 4. **PWA Manifest** - `src/app/manifest.json` for web app installation
 
 5. **Apple Web App Title** - Configured via Next.js Metadata
+
+### Task 14: Capacitor Android App Setup ✅
+
+**What was implemented:**
+
+1. **Installed Capacitor packages:**
+   - `@capacitor/core` - Core Capacitor runtime
+   - `@capacitor/cli` - CLI tools for building and syncing
+   - `@capacitor/android` - Android platform support
+
+2. **Capacitor Configuration** (`capacitor.config.ts`):
+   ```typescript
+   import type { CapacitorConfig } from '@capacitor/cli';
+
+   const config: CapacitorConfig = {
+     appId: 'com.girandola.app',
+     appName: 'Girandola Localizzatore',
+     webDir: 'out',
+     server: {
+       // For production, set your Vercel URL:
+       // url: 'https://girandola.vercel.app',
+       cleartext: true, // Allow HTTP for development
+     },
+   };
+
+   export default config;
+   ```
+
+3. **Next.js Configuration** (`next.config.ts`):
+   - Added conditional `output: 'export'` for Capacitor builds
+   - Set via `CAPACITOR_BUILD=true` environment variable
+   - Normal Vercel builds remain unchanged (server-side features work)
+
+4. **Package Scripts** (`package.json`):
+   ```json
+   "static-build": "next build && npx cap copy"
+   ```
+
+5. **Android Platform** - Added via `npx cap add android`
+   - Creates `android/` directory with native project
+   - Ready to open in Android Studio
+
+**Important: WebView Approach**
+
+Since this app uses API routes, authentication, and database operations, the recommended approach is to use Capacitor's WebView to load the Vercel-hosted app:
+
+1. Deploy to Vercel as usual
+2. Set the `server.url` in `capacitor.config.ts` to your Vercel URL
+3. The Android app will load the web app in a native WebView
+
+This ensures all features work (login, API calls, database) without code changes.
+
+**Android Development Commands:**
+```bash
+# Build for Android (creates static files)
+CAPACITOR_BUILD=true npm run build
+
+# Copy web assets to Android
+npx cap copy android
+
+# Open in Android Studio
+npx cap open android
+
+# Sync plugins and dependencies
+npx cap sync android
+```
+
+**Google OAuth for Android:**
+
+To enable Google Sign-In in the Android app, add these redirect URIs in Google Cloud Console:
+- `com.girandola.app:/oauth2redirect` (for deep linking)
+- Your Vercel URL callback (already configured)
+
+**Project Structure Addition:**
+```
+android/                    # Capacitor Android project
+├── app/
+│   └── src/main/
+│       ├── assets/public/  # Web assets copied here
+│       └── AndroidManifest.xml
+├── build.gradle
+└── settings.gradle
+capacitor.config.ts         # Capacitor configuration
+```
 
 ## API Endpoints
 
