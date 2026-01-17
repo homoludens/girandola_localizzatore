@@ -1,10 +1,5 @@
 @import "tailwindcss";
 
-/* Safe area padding for mobile browser bottom navigation */
-.safe-area-bottom {
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
-}
-
 /* Custom cursor for map pick mode */
 .cursor-crosshair,
 .cursor-crosshair .leaflet-container,
