@@ -1,0 +1,79 @@
+./gradlew signingReport                                                                                                               ──(Sat,Jan17)─┘
+
+Welcome to Gradle 8.11.1!
+
+Here are the highlights of this release:
+ - Parallel load and store for Configuration Cache
+ - Java compilation errors at the end of the build output
+ - Consolidated report for warnings and deprecations
+
+For more details see https://docs.gradle.org/8.11.1/release-notes.html
+
+Starting a Gradle Daemon, 1 busy Daemon could not be reused, use --status for details
+
+> Configure project :app
+WARNING: Using flatDir should be avoided because it doesn't support any meta-data formats.
+
+> Configure project :capacitor-cordova-android-plugins
+WARNING: Using flatDir should be avoided because it doesn't support any meta-data formats.
+
+> Task :app:signingReport
+Variant: debug
+Config: debug
+Store: /home/homoludens/.config/.android/debug.keystore
+Alias: AndroidDebugKey
+MD5: FF:EF:06:6F:04:E7:8E:7B:59:56:83:B0:6C:F4:9D:F8
+SHA1: 1C:0D:E3:BC:39:C9:2C:4E:9D:59:96:F8:9C:4F:64:9F:72:97:79:34
+SHA-256: 4E:77:93:79:8D:55:97:1F:9F:9D:8D:35:2C:21:06:9F:03:DE:6A:48:40:6D:4C:52:77:C4:B9:B7:5A:CF:D4:4D
+Valid until: Sunday, November 15, 2054
+----------
+Variant: release
+Config: null
+Store: null
+Alias: null
+----------
+Variant: debugAndroidTest
+Config: debug
+Store: /home/homoludens/.config/.android/debug.keystore
+Alias: AndroidDebugKey
+MD5: FF:EF:06:6F:04:E7:8E:7B:59:56:83:B0:6C:F4:9D:F8
+SHA1: 1C:0D:E3:BC:39:C9:2C:4E:9D:59:96:F8:9C:4F:64:9F:72:97:79:34
+SHA-256: 4E:77:93:79:8D:55:97:1F:9F:9D:8D:35:2C:21:06:9F:03:DE:6A:48:40:6D:4C:52:77:C4:B9:B7:5A:CF:D4:4D
+Valid until: Sunday, November 15, 2054
+----------
+
+> Task :capacitor-android:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: /home/homoludens/.config/.android/debug.keystore
+Alias: AndroidDebugKey
+MD5: FF:EF:06:6F:04:E7:8E:7B:59:56:83:B0:6C:F4:9D:F8
+SHA1: 1C:0D:E3:BC:39:C9:2C:4E:9D:59:96:F8:9C:4F:64:9F:72:97:79:34
+SHA-256: 4E:77:93:79:8D:55:97:1F:9F:9D:8D:35:2C:21:06:9F:03:DE:6A:48:40:6D:4C:52:77:C4:B9:B7:5A:CF:D4:4D
+Valid until: Sunday, November 15, 2054
+----------
+
+> Task :capacitor-cordova-android-plugins:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: /home/homoludens/.config/.android/debug.keystore
+Alias: AndroidDebugKey
+MD5: FF:EF:06:6F:04:E7:8E:7B:59:56:83:B0:6C:F4:9D:F8
+SHA1: 1C:0D:E3:BC:39:C9:2C:4E:9D:59:96:F8:9C:4F:64:9F:72:97:79:34
+SHA-256: 4E:77:93:79:8D:55:97:1F:9F:9D:8D:35:2C:21:06:9F:03:DE:6A:48:40:6D:4C:52:77:C4:B9:B7:5A:CF:D4:4D
+Valid until: Sunday, November 15, 2054
+----------
+
+> Task :capgo-capacitor-social-login:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: /home/homoludens/.config/.android/debug.keystore
+Alias: AndroidDebugKey
+MD5: FF:EF:06:6F:04:E7:8E:7B:59:56:83:B0:6C:F4:9D:F8
+SHA1: 1C:0D:E3:BC:39:C9:2C:4E:9D:59:96:F8:9C:4F:64:9F:72:97:79:34
+SHA-256: 4E:77:93:79:8D:55:97:1F:9F:9D:8D:35:2C:21:06:9F:03:DE:6A:48:40:6D:4C:52:77:C4:B9:B7:5A:CF:D4:4D
+Valid until: Sunday, November 15, 2054
+----------
+
+BUILD SUCCESSFUL in 4m 23s
+4 actionable tasks: 4 executed

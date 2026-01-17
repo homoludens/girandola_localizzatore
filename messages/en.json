@@ -47,7 +47,9 @@
     "saveSuccess": "Girandola added successfully!",
     "saveError": "Failed to save Girandola. Please try again.",
     "confirmLocation": "Add Girandola here?",
-    "newMarker": "New Girandola"
+    "newMarker": "New Girandola",
+    "accuracy": "GPS accuracy",
+    "accuracyTooLow": "must be under 10m"
   },
   "export": {
     "button": "Export CSV",

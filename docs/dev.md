@@ -723,6 +723,40 @@ User taps "Add Girandola" → "Use My GPS"
 - **Terms of Service**: Acceptance, service description, user accounts, location data usage, prohibited conduct, warranties, liability
 - **Privacy Policy**: Data collection (Google OAuth, GPS), data usage, information sharing, storage (Neon Postgres), third-party services, user rights, Android permissions, cookies
 
+### Task 18: GPS Accuracy Display & Threshold ✅
+
+**What was implemented:**
+
+1. **GPS Accuracy Display** - When using "Use My GPS" to add a Girandola, the accuracy is now displayed:
+   - Shows accuracy in meters (e.g., "GPS accuracy: 5m")
+   - Green color when accuracy is 10m or better
+   - Red color when accuracy is worse than 10m
+
+2. **10m Accuracy Threshold** - The Confirm button is disabled when GPS accuracy exceeds 10 meters:
+   - Prevents users from adding imprecise locations
+   - Shows message "(must be under 10m)" when accuracy is too low
+   - Users can cancel and retry to get better GPS signal
+
+3. **Updated Translations** - Added new translation keys in both English and Italian:
+   - `addGirandola.accuracy` - "GPS accuracy" / "Precisione GPS"
+   - `addGirandola.accuracyTooLow` - "must be under 10m" / "deve essere sotto 10m"
+
+**Key Files:**
+| File | Purpose |
+|------|---------|
+| `src/components/DashboardClient.tsx` | GPS accuracy state, display, and threshold check |
+| `messages/en.json` | English translations for accuracy messages |
+| `messages/it.json` | Italian translations for accuracy messages |
+
+**Flow:**
+```
+User taps "Add Girandola" → "Use My GPS"
+    → GPS position retrieved with accuracy
+    → If accuracy ≤ 10m: Green indicator, Confirm enabled
+    → If accuracy > 10m: Red indicator, Confirm disabled
+    → User can retry or pick on map instead
+```
+
 ## API Endpoints
 
 | Endpoint | Method | Auth | Description |
