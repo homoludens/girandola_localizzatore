@@ -125,6 +125,7 @@ npx prisma db push
 | `NEXTAUTH_URL` | Yes | Full URL of your deployed app |
 | `GOOGLE_CLIENT_ID` | Yes | Google OAuth client ID |
 | `GOOGLE_CLIENT_SECRET` | Yes | Google OAuth client secret |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Yes (Android) | Same as GOOGLE_CLIENT_ID, exposed to client for native auth |
 
 ## Troubleshooting
 
@@ -465,3 +466,115 @@ npx cap sync android
 
 # Rebuild and redistribute the APK/AAB
 ```
+
+---
+
+# Native Authentication Integration (Task 15)
+
+The app supports native Google Sign-In on Android, which provides a better user experience compared to browser-based OAuth. Users can sign in with their device's Google account without being redirected to a browser.
+
+## How It Works
+
+1. **Platform Detection**: The `useNativeAuth` hook detects if the app is running on a native platform using `Capacitor.isNativePlatform()`.
+
+2. **Native Sign-In Flow**:
+   - On Android: Uses `@capgo/capacitor-social-login` to trigger native Google Sign-In
+   - Returns a Google ID token upon successful authentication
+
+3. **Token Validation**: The ID token is sent to NextAuth's credentials provider (`google-native`), which:
+   - Validates the token with Google's OAuth2 API
+   - Finds or creates the user in the Postgres database
+   - Creates a JWT session for the user
+
+4. **Session Persistence**: The JWT session is stored in cookies and persists across app restarts.
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        Android App                               │
+├─────────────────────────────────────────────────────────────────┤
+│  LoginButton Component                                           │
+│  ├── useNativeAuth hook                                         │
+│  │   ├── Detects native platform                                │
+│  │   └── Triggers SocialLogin.login()                           │
+│  └── On success: calls signIn("google-native", {idToken})       │
+├─────────────────────────────────────────────────────────────────┤
+│                        WebView                                   │
+│  └── Loads https://girandola-localizzatore.vercel.app           │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                      Vercel (NextAuth)                           │
+├─────────────────────────────────────────────────────────────────┤
+│  Credentials Provider "google-native"                            │
+│  ├── Receives ID token                                          │
+│  ├── Validates with Google OAuth2 API                           │
+│  └── Returns user object                                        │
+├─────────────────────────────────────────────────────────────────┤
+│  JWT Callback                                                    │
+│  ├── Finds/creates user in Postgres                             │
+│  └── Returns JWT with userId                                    │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## Key Files
+
+| File | Purpose |
+|------|---------|
+| `src/hooks/useNativeAuth.ts` | Hook for native platform detection and Google Sign-In |
+| `src/components/LoginButton.tsx` | Client component that uses native auth on Android |
+| `src/auth/config.ts` | NextAuth config with `google-native` credentials provider |
+| `src/auth/index.ts` | Main auth handler with user creation logic |
+| `src/app/[locale]/login/page.tsx` | Login page using LoginButton component |
+
+## Environment Variables for Native Auth
+
+Add these to your Vercel deployment:
+
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Your Web Client ID (same as `GOOGLE_CLIENT_ID`). Must be prefixed with `NEXT_PUBLIC_` to be accessible on the client. |
+
+## Testing Native Auth
+
+1. **Build and deploy to Vercel** to ensure the backend is ready
+2. **Sync Capacitor**:
+   ```bash
+   npx cap sync android
+   ```
+3. **Run on Android device/emulator**:
+   ```bash
+   npx cap run android
+   ```
+4. **Test the login flow**:
+   - Tap "Sign in with Google"
+   - Native Google account picker should appear
+   - After selecting account, you should be redirected to the home page
+   - Session should persist after closing and reopening the app
+
+## Troubleshooting Native Auth
+
+### "No ID token received from Google"
+
+- Ensure the Web Client ID in `strings.xml` is correct
+- Verify Android OAuth client has correct SHA-1 fingerprint
+- Check that Google Play Services is available on the device
+
+### "Token audience mismatch"
+
+- The ID token was issued for a different client ID
+- Verify `GOOGLE_CLIENT_ID` environment variable matches the Web Client ID
+
+### User created but session not persisting
+
+- Check browser/WebView cookie settings
+- Ensure `NEXTAUTH_URL` is set correctly
+- Verify JWT callback is returning the correct userId
+
+### Native sign-in works but user not in database
+
+- Check Vercel function logs for database errors
+- Verify `DATABASE_URL` is correct
+- Ensure Prisma client is generated: `npx prisma generate`

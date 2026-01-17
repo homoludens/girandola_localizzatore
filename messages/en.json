@@ -19,6 +19,8 @@
     "loginTitle": "Welcome Back",
     "loginDescription": "Sign in to access your Girandolas",
     "signInWithGoogle": "Sign in with Google",
+    "signingIn": "Signing in...",
+    "loading": "Loading...",
     "signOut": "Sign out",
     "userMenu": "User menu"
   },

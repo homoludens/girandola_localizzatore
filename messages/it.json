@@ -19,6 +19,8 @@
     "loginTitle": "Bentornato",
     "loginDescription": "Accedi per vedere le tue Girandole",
     "signInWithGoogle": "Accedi con Google",
+    "signingIn": "Accesso in corso...",
+    "loading": "Caricamento...",
     "signOut": "Esci",
     "userMenu": "Menu utente"
   },

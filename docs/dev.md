@@ -595,6 +595,56 @@ android/                    # Capacitor Android project
 capacitor.config.ts         # Capacitor configuration
 ```
 
+### Task 15: Native Auth Integration with NextAuth ✅
+
+**What was implemented:**
+
+1. **useNativeAuth Hook** (`src/hooks/useNativeAuth.ts`):
+   - Detects if running on native platform via `Capacitor.isNativePlatform()`
+   - Initializes the SocialLogin plugin on native platforms
+   - Provides `nativeSignIn()` function that triggers native Google Sign-In
+   - Returns the ID token to authenticate with NextAuth
+
+2. **Credentials Provider for Native Auth** (`src/auth/config.ts`):
+   - Added `google-native` credentials provider
+   - Validates Google ID tokens via Google's OAuth2 API
+   - Returns user data (id, email, name, image) from the token
+
+3. **User Creation for Native Auth** (`src/auth/index.ts`):
+   - On native sign-in, finds or creates user in Postgres database
+   - Creates an account record linking the Google ID to the user
+   - Returns database user ID in JWT for session persistence
+
+4. **LoginButton Component** (`src/components/LoginButton.tsx`):
+   - Client component that uses `useNativeAuth` hook
+   - On native: triggers `SocialLogin.login()` then `signIn("google-native")`
+   - On web: triggers regular `signIn("google")` OAuth flow
+   - Shows loading states and error messages
+
+5. **Updated Login Page** (`src/app/[locale]/login/page.tsx`):
+   - Now uses the client-side `LoginButton` component
+   - Works seamlessly on both web and Android
+
+**Flow:**
+```
+Android User clicks "Sign in with Google"
+    → useNativeAuth detects native platform
+    → SocialLogin.login() shows native account picker
+    → User selects Google account
+    → Returns ID token
+    → signIn("google-native", {idToken}) called
+    → NextAuth validates token with Google API
+    → User found/created in Postgres
+    → JWT session created
+    → User redirected to home page
+```
+
+**Environment Variables:**
+```bash
+# Required for native auth (add to Vercel)
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_web_client_id
+```
+
 ## API Endpoints
 
 | Endpoint | Method | Auth | Description |
