@@ -9,6 +9,9 @@ import "../globals.css";
 export const metadata: Metadata = {
   title: "Girandola Localizzatore",
   description: "Track and share your favorite locations",
+  appleWebApp: {
+    title: "Girandola Localizzatore",
+  },
 };
 
 type Props = {
