@@ -11,6 +11,7 @@ export async function Navigation() {
   const tCommon = await getTranslations("common");
   const tContributors = await getTranslations("contributors");
   const tExport = await getTranslations("export");
+  const tLegal = await getTranslations("legal");
 
   return (
     <nav className="relative z-[1000] flex items-center justify-between border-b border-gray-200 bg-white px-3 py-2 shadow-sm sm:px-4 sm:py-3">
@@ -42,6 +43,18 @@ export async function Navigation() {
               {tExport("pageTitle")}
             </Link>
           )}
+          <Link
+            href="/terms"
+            className="text-sm text-gray-600 hover:text-gray-900"
+          >
+            {tLegal("termsOfService")}
+          </Link>
+          <Link
+            href="/privacy"
+            className="text-sm text-gray-600 hover:text-gray-900"
+          >
+            {tLegal("privacyPolicy")}
+          </Link>
         </div>
       </div>
       <div className="flex items-center gap-2 sm:gap-4">

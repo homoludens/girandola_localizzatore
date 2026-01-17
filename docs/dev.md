@@ -686,6 +686,43 @@ User taps "Add Girandola" → "Use My GPS"
 | `src/components/DashboardClient.tsx` | Uses hook for GPS feature |
 | `android/app/src/main/AndroidManifest.xml` | Location permissions |
 
+### Task 17: Terms of Service & Privacy Policy Pages ✅
+
+**What was implemented:**
+
+1. **Created Terms of Service Page** (`src/app/[locale]/terms/page.tsx`):
+   - Comprehensive 10-section terms covering service usage, user accounts, location data, and liability
+   - Client-side rendered with full i18n support
+   - Clean, readable layout with proper typography
+
+2. **Created Privacy Policy Page** (`src/app/[locale]/privacy/page.tsx`):
+   - Detailed 10-section privacy policy explaining data collection, storage, and user rights
+   - Covers Google OAuth, GPS data, cookies, and third-party services
+   - Explains Android location permissions
+   - Client-side rendered with full i18n support
+
+3. **Added Translations** (`messages/en.json` and `messages/it.json`):
+   - Complete English and Italian translations for both legal pages
+   - Includes all section titles and content
+   - Added `legal` namespace for navigation links
+
+4. **Updated Navigation** (`src/components/Navigation.tsx`):
+   - Added "Terms of Service" and "Privacy Policy" links to desktop navigation
+   - Links visible to all users (not authentication-gated)
+
+5. **Updated Mobile Menu** (`src/components/MobileMenu.tsx`):
+   - Added legal links section with visual divider
+   - Document and shield icons for terms and privacy respectively
+   - Active state highlighting for current page
+
+**Pages:**
+- `/[locale]/terms` - Terms of Service (accessible in all languages)
+- `/[locale]/privacy` - Privacy Policy (accessible in all languages)
+
+**Key Topics Covered:**
+- **Terms of Service**: Acceptance, service description, user accounts, location data usage, prohibited conduct, warranties, liability
+- **Privacy Policy**: Data collection (Google OAuth, GPS), data usage, information sharing, storage (Neon Postgres), third-party services, user rights, Android permissions, cookies
+
 ## API Endpoints
 
 | Endpoint | Method | Auth | Description |

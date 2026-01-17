@@ -287,6 +287,9 @@ You need a **separate Android OAuth client** (different from your Web client):
 6. Paste your **SHA-1 fingerprint** (from step 4.1)
 7. Click "Create"
 
+cliendid=
+149267535489-obsu9vevmcu3ujod8a9tu31gvlu1kttk.apps.googleusercontent.com
+
 **Important:** You need separate Android OAuth clients for debug and release if using different signing keys:
 - Create one with debug SHA-1 for development
 - Create another with release SHA-1 for production
