@@ -6,6 +6,8 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { Girandola } from "@/types/girandola";
 
+export type MapLayer = "osm" | "satellite";
+
 // Fix for Leaflet default marker icon issue in Next.js/Webpack
 // The default marker icons are not bundled correctly, so we need to configure them manually
 delete (L.Icon.Default.prototype as { _getIconUrl?: unknown })._getIconUrl;
@@ -25,7 +27,20 @@ interface MapComponentProps {
   pendingLocation?: { lat: number; lng: number } | null;
   newMarkerLabel?: string;
   focusLocation?: { lat: number; lng: number } | null;
+  mapLayer?: MapLayer;
 }
+
+// Tile layer configurations
+const TILE_LAYERS = {
+  osm: {
+    url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  },
+  satellite: {
+    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    attribution: '&copy; <a href="https://www.esri.com/">Esri</a> &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+  },
+};
 
 // Component to handle map resize when container changes
 function MapResizeHandler() {
@@ -98,7 +113,10 @@ export default function MapComponent({
   pendingLocation = null,
   newMarkerLabel = "New Girandola",
   focusLocation = null,
+  mapLayer = "osm",
 }: MapComponentProps) {
+  const tileConfig = TILE_LAYERS[mapLayer];
+
   return (
     <MapContainer
       center={center}
@@ -108,8 +126,9 @@ export default function MapComponent({
       zoomControl={true}
     >
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        key={mapLayer}
+        attribution={tileConfig.attribution}
+        url={tileConfig.url}
       />
       <MapResizeHandler />
       <MapClickHandler onMapClick={onMapClick} pickMode={pickMode} />

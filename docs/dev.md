@@ -831,6 +831,49 @@ User taps location button
     → User can then tap "+" to add a Girandola
 ```
 
+### Task 20: Map Layer Toggle (OpenStreetMap / Esri Satellite) ✅
+
+**What was implemented:**
+
+1. **Esri Satellite Layer Support** - Added alternative tile layer for satellite imagery:
+   - Uses Esri World Imagery service
+   - High-quality satellite/aerial photography
+   - Proper attribution for Esri sources
+
+2. **MapLayer Type** - Added `MapLayer` type export (`"osm"` | `"satellite"`):
+   - `osm` - OpenStreetMap standard tiles
+   - `satellite` - Esri World Imagery tiles
+
+3. **Layer Toggle Button** - Added to bottom status bar:
+   - Globe icon when viewing map (click to switch to satellite)
+   - Map icon when viewing satellite (click to switch to map)
+   - Located next to the location button
+
+4. **Updated Translations** - Added new translation keys:
+   - `map.switchToSatellite` - "Switch to satellite view" / "Passa alla vista satellite"
+   - `map.switchToMap` - "Switch to map view" / "Passa alla vista mappa"
+
+**Key Files:**
+| File | Purpose |
+|------|---------|
+| `src/components/map/MapComponent.tsx` | `MapLayer` type and tile layer configuration |
+| `src/components/map/index.tsx` | Exports `MapLayer` type |
+| `src/components/DashboardClient.tsx` | Layer toggle state and button |
+| `messages/en.json` | English translations |
+| `messages/it.json` | Italian translations |
+
+**Updated Status Bar Layout:**
+```
+┌─────────────────────────────────────────────────┐
+│  [📍][🌐]  45.7024, 7.1665  ±5m        [+]     │
+│  locate layer GPS coordinates/accuracy  add    │
+└─────────────────────────────────────────────────┘
+```
+
+**Tile Layer URLs:**
+- OpenStreetMap: `https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png`
+- Esri Satellite: `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}`
+
 ## API Endpoints
 
 | Endpoint | Method | Auth | Description |

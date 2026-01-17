@@ -33,7 +33,9 @@
     "errorLoading": "Impossibile caricare la mappa",
     "attribution": "Dati mappa",
     "locateMe": "Mostra la mia posizione",
-    "noGpsData": "Tocca posizione per GPS"
+    "noGpsData": "Tocca posizione per GPS",
+    "switchToSatellite": "Passa alla vista satellite",
+    "switchToMap": "Passa alla vista mappa"
   },
   "addGirandola": {
     "button": "Aggiungi Girandola",

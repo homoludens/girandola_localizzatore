@@ -17,3 +17,4 @@ const MapComponent = dynamic(() => import("./MapComponent"), {
 });
 
 export { MapComponent };
+export type { MapLayer } from "./MapComponent";
