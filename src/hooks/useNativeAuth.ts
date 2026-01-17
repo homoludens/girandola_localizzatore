@@ -121,7 +121,9 @@ export function useNativeAuth() {
       // Trigger native Google Sign-In
       const result = await SocialLogin.login({
         provider: "google", // Add this line
-        scopes: ["email", "profile"],
+        options: {
+          scopes: ["email", "profile"],
+        },
       });
 
       if (!result.idToken) {
