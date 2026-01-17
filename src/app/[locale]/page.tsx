@@ -1,12 +1,13 @@
-import { useTranslations } from "next-intl";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
+import DashboardClient from "@/components/DashboardClient";
 
-export default function HomePage() {
-  const t = useTranslations("home");
+export default async function HomePage() {
+  const session = await auth();
 
-  return (
-    <div className="flex min-h-[calc(100vh-64px)] flex-col items-center justify-center p-8">
-      <h1 className="mb-4 text-4xl font-bold text-gray-900">{t("title")}</h1>
-      <p className="text-lg text-gray-600">{t("description")}</p>
-    </div>
-  );
+  if (!session?.user) {
+    redirect("/login");
+  }
+
+  return <DashboardClient />;
 }

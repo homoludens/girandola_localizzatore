@@ -14,17 +14,7 @@ export async function Navigation() {
         <Link href="/" className="text-lg font-bold text-gray-900 sm:text-xl">
           {t("appName")}
         </Link>
-        <Link href="/" className="hidden text-sm text-gray-600 hover:text-gray-900 sm:inline">
-          {t("home")}
-        </Link>
-        {session?.user && (
-          <Link
-            href="/dashboard"
-            className="text-xs text-gray-600 hover:text-gray-900 sm:text-sm"
-          >
-            {t("dashboard")}
-          </Link>
-        )}
+
       </div>
       <div className="flex items-center gap-2 sm:gap-4">
         <LanguageSwitcher />
