@@ -4,23 +4,28 @@ import { useState, useCallback, useEffect } from "react";
 import { signIn } from "next-auth/react";
 
 // Types for Capacitor and Google Auth plugin
-interface GoogleLoginResult {
-  idToken: string;
-  accessToken?: {
+interface GoogleLoginResponse {
+  idToken: string | null;
+  accessToken: {
     token: string;
-  };
+  } | null;
   profile: {
-    email: string;
-    familyName?: string;
-    givenName?: string;
-    id: string;
-    name: string;
-    imageUrl?: string;
+    email: string | null;
+    familyName: string | null;
+    givenName: string | null;
+    id: string | null;
+    name: string | null;
+    imageUrl: string | null;
   };
+  responseType: 'online';
+}
+
+interface GoogleLoginResult {
+  provider: 'google';
+  result: GoogleLoginResponse;
 }
 
 interface GoogleAuthPlugin {
-  // Corrected signature
   login(options: {
     provider: string;
     options?: { scopes: string[] }
@@ -119,20 +124,25 @@ export function useNativeAuth() {
       }
 
       // Trigger native Google Sign-In
-      const result = await SocialLogin.login({
-        provider: "google", // Add this line
+      const loginResponse = await SocialLogin.login({
+        provider: "google",
         options: {
           scopes: ["email", "profile"],
         },
       });
 
-      if (!result.idToken) {
+      console.log("SocialLogin response:", JSON.stringify(loginResponse, null, 2));
+
+      // The response is wrapped: { provider: 'google', result: GoogleLoginResponse }
+      const idToken = loginResponse.result?.idToken;
+      
+      if (!idToken) {
         throw new Error("No ID token received from Google");
       }
 
       // Use the ID token to sign in via NextAuth credentials provider
       const signInResult = await signIn("google-native", {
-        idToken: result.idToken,
+        idToken: idToken,
         redirect: false,
       });
 
