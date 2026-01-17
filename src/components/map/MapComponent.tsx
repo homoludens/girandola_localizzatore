@@ -75,7 +75,7 @@ function PanToLocation({ location }: { location: { lat: number; lng: number } | 
 }
 
 export default function MapComponent({
-  center = [45.0703, 7.6869], // Default to Turin, Italy (near Piedmont region)
+  center = [45.7024, 7.1665], // Default to Arvier, Valle d'Aosta, Italy
   zoom = 13,
   className = "",
   girandolas = [],
