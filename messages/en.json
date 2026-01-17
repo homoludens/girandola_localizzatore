@@ -51,5 +51,11 @@
     "button": "Export CSV",
     "exporting": "Exporting...",
     "noData": "No data to export"
+  },
+  "contributors": {
+    "title": "Top Contributors",
+    "noContributors": "No contributors yet",
+    "girandolas": "girandolas",
+    "linkText": "Top Contributors"
   }
 }

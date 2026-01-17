@@ -8,6 +8,7 @@ import { auth, signOut } from "@/auth";
 export async function Navigation() {
   const session = await auth();
   const t = await getTranslations("common");
+  const tContributors = await getTranslations("contributors");
 
   return (
     <nav className="relative z-[1000] flex items-center justify-between border-b border-gray-200 bg-white px-3 py-2 shadow-sm sm:px-4 sm:py-3">
@@ -21,6 +22,12 @@ export async function Navigation() {
             className="h-8 w-8"
           />
           <span className="hidden sm:inline">{t("appName")}</span>
+        </Link>
+        <Link
+          href="/contributors"
+          className="text-xs text-gray-600 hover:text-gray-900 sm:text-sm"
+        >
+          {tContributors("linkText")}
         </Link>
       </div>
       <div className="flex items-center gap-2 sm:gap-4">
