@@ -79,7 +79,14 @@ export default function DashboardClient() {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        saveGirandola(position.coords.latitude, position.coords.longitude);
+        // Set pending location to center map and show marker
+        setPendingLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+        setIsDialogOpen(false);
+        setShowConfirmBar(true);
+        setIsLoading(false);
       },
       () => {
         setError(t("locationError"));
@@ -87,7 +94,7 @@ export default function DashboardClient() {
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
-  }, [t, saveGirandola]);
+  }, [t]);
 
   const handlePickOnMap = useCallback(() => {
     setIsDialogOpen(false);
