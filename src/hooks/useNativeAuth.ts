@@ -20,11 +20,18 @@ interface GoogleLoginResult {
 }
 
 interface GoogleAuthPlugin {
-  login(options: { scopes: string[] }): Promise<GoogleLoginResult>;
+  // Corrected signature
+  login(options: {
+    provider: string;
+    options?: { scopes: string[] }
+  }): Promise<GoogleLoginResult>;
+
   logout(): Promise<void>;
   isLoggedIn(): Promise<{ isLoggedIn: boolean }>;
   initialize(options: { google: { webClientId: string } }): Promise<void>;
 }
+
+
 
 interface CapacitorGlobal {
   isNativePlatform(): boolean;
@@ -51,7 +58,7 @@ export function useNativeAuth() {
       if (typeof window !== "undefined" && window.Capacitor) {
         const native = window.Capacitor.isNativePlatform();
         setIsNative(native);
-        
+
         if (native) {
           // Initialize Google Auth plugin
           try {
@@ -62,7 +69,7 @@ export function useNativeAuth() {
               setIsInitialized(true);
               return;
             }
-            
+
             const webClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
             if (!webClientId) {
               console.error("NEXT_PUBLIC_GOOGLE_CLIENT_ID is not set");
@@ -70,7 +77,7 @@ export function useNativeAuth() {
               setIsInitialized(true);
               return;
             }
-            
+
             // The webClientId should match your Google OAuth Web Client ID
             // This is configured in strings.xml for Android
             console.log("Initializing SocialLogin with webClientId:", webClientId);
@@ -113,6 +120,7 @@ export function useNativeAuth() {
 
       // Trigger native Google Sign-In
       const result = await SocialLogin.login({
+        provider: "google", // Add this line
         scopes: ["email", "profile"],
       });
 
