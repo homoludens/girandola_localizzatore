@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { LanguageSwitcher } from "./LanguageSwitcher";
@@ -11,10 +12,16 @@ export async function Navigation() {
   return (
     <nav className="relative z-[1000] flex items-center justify-between border-b border-gray-200 bg-white px-3 py-2 shadow-sm sm:px-4 sm:py-3">
       <div className="flex items-center gap-3 sm:gap-6">
-        <Link href="/" className="text-lg font-bold text-gray-900 sm:text-xl">
-          {t("appName")}
+        <Link href="/" className="flex items-center gap-2 text-lg font-bold text-gray-900 sm:text-xl">
+          <Image
+            src="/girandola.png"
+            alt="Girandola"
+            width={32}
+            height={32}
+            className="h-8 w-8"
+          />
+          <span className="hidden sm:inline">{t("appName")}</span>
         </Link>
-
       </div>
       <div className="flex items-center gap-2 sm:gap-4">
         <LanguageSwitcher />
