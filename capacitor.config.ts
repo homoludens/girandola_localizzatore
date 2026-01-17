@@ -20,7 +20,16 @@ const config: CapacitorConfig = {
         apple: false,
         twitter: false,
       },
+      google: {
+             webClientId: "149267535489-obsu9vevmcu3ujod8a9tu31gvlu1kttk.apps.googleusercontent.com",
+      }
     },
+    GoogleAuth: {
+        scopes: ["profile", "email"],
+        androidClientId: "149267535489-obsu9vevmcu3ujod8a9tu31gvlu1kttk.apps.googleusercontent.com",
+        serverClientId: "149267535489-534vviffsg2ft0hq0atjrq0nhh6pn696.apps.googleusercontent.com",
+        forceCodeForRefreshToken: true,
+      },
   },
 };
 

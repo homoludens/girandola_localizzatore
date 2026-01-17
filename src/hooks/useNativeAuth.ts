@@ -56,19 +56,36 @@ export function useNativeAuth() {
           // Initialize Google Auth plugin
           try {
             const SocialLogin = window.Capacitor.Plugins.SocialLogin;
-            if (SocialLogin) {
-              // The webClientId should match your Google OAuth Web Client ID
-              // This is configured in strings.xml for Android
-              await SocialLogin.initialize({
-                google: {
-                  webClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "",
-                },
-              });
+            if (!SocialLogin) {
+              console.error("SocialLogin plugin not found in Capacitor.Plugins");
+              setError("Native login plugin not available");
               setIsInitialized(true);
+              return;
             }
+            
+            const webClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+            if (!webClientId) {
+              console.error("NEXT_PUBLIC_GOOGLE_CLIENT_ID is not set");
+              setError("Google Client ID not configured");
+              setIsInitialized(true);
+              return;
+            }
+            
+            // The webClientId should match your Google OAuth Web Client ID
+            // This is configured in strings.xml for Android
+            console.log("Initializing SocialLogin with webClientId:", webClientId);
+            await SocialLogin.initialize({
+              google: {
+                webClientId: webClientId,
+              },
+            });
+            console.log("SocialLogin initialized successfully");
+            setIsInitialized(true);
           } catch (err) {
             console.error("Failed to initialize SocialLogin:", err);
-            setError("Failed to initialize native login");
+            const errorMessage = err instanceof Error ? err.message : String(err);
+            setError(`Failed to initialize native login: ${errorMessage}`);
+            setIsInitialized(true);
           }
         }
       }
