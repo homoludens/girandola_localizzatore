@@ -874,6 +874,38 @@ User taps location button
 - OpenStreetMap: `https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png`
 - Esri Satellite: `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}`
 
+### Task 21: WebAR Random 3D Model Selection ✅
+
+**What was implemented:**
+
+1. **Random Model Loading** - The WebAR page (`public/webar_custom.html`) now loads a random 3D model from the `public/models/` folder instead of the fixed `Demon.glb`.
+
+2. **Available Models Array** - Added array of all available GLB models:
+   - Armabee.glb
+   - Beagle.glb
+   - Chicken.glb
+   - Goat.glb
+   - Hydrant.glb
+   - Mouse.glb
+   - Pigeon.glb
+   - Sheep.glb
+   - Snowman.glb
+   - Water bottle.glb
+   - Water fountain made in Blocks.glb
+
+3. **New Functions:**
+   - `getRandomModelPath()` - Selects a random model from the array
+   - `loadModel(modelPath)` - Generic model loading function
+   - `loadRandomModel()` - Orchestrates random selection and loading
+
+4. **Loading Feedback** - Shows the model name being loaded in the loading screen.
+
+**Key Files:**
+| File | Purpose |
+|------|---------|
+| `public/webar_custom.html` | WebAR page with random model selection |
+| `public/models/*.glb` | 3D model files |
+
 ## API Endpoints
 
 | Endpoint | Method | Auth | Description |
