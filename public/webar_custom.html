@@ -54,7 +54,7 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            transform: scaleX(-1);
+            /*transform: scaleX(-1);*/
         }
 
         #three-canvas {
@@ -959,7 +959,7 @@
             ctx.fillRect(scaledX, scaledY - 25, 80, 22);
             ctx.fillStyle = '#fff';
             ctx.font = 'bold 12px Orbitron';
-            ctx.fillText('MOUSE', scaledX + 8, scaledY - 9);
+            ctx.fillText('Girandola', scaledX + 8, scaledY - 9);
         }
 
         // Update 3D model position based on detection - position ABOVE the mouse
@@ -972,7 +972,8 @@
 
             // Convert to normalized coordinates (-1 to 1)
             // Note: We flip X because video is mirrored
-            const normalizedX = -((centerX / video.videoWidth) * 2 - 1);
+            const normalizedX = ((centerX / video.videoWidth) * 2 - 1);
+
             const normalizedY = -((topY / video.videoHeight) * 2 - 1);
 
             // Scale to 3D space - add extra Y offset to position model above mouse
