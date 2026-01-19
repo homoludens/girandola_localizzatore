@@ -578,6 +578,22 @@
         let lastFpsTime = performance.now();
         let currentFps = 0;
 
+        // Available 3D models in models folder
+        const availableModels = [
+            'models/Armabee.glb',
+            'models/Beagle.glb',
+            'models/Chicken.glb',
+            'models/Goat.glb',
+            'models/Hydrant.glb',
+            'models/Mouse.glb',
+            'models/Pigeon.glb',
+            'models/Sheep.glb',
+            'models/Snowman.glb',
+            'models/Water bottle.glb',
+            'models/Water fountain made in Blocks.glb'
+        ];
+        let currentModelPath = null;
+
         // DOM Elements
         const loadingScreen = document.getElementById('loading-screen');
         const loadingStatus = document.getElementById('loading-status');
@@ -609,9 +625,9 @@
                 model = await cocoSsd.load();
                 modelStatus.classList.add('active');
 
-                // Load 3D demon model
-                loadingStatus.textContent = 'Loading demon model...';
-                await loadDemonModel();
+                // Load random 3D model
+                loadingStatus.textContent = 'Loading 3D model...';
+                await loadRandomModel();
 
                 // Hide loading screen
                 loadingScreen.classList.add('hidden');
@@ -721,43 +737,67 @@
             });
         }
 
-        // Load the demon GLB model
-        async function loadDemonModel() {
+        // Select a random model from the available models
+        function getRandomModelPath() {
+            const randomIndex = Math.floor(Math.random() * availableModels.length);
+            return availableModels[randomIndex];
+        }
+
+        // Load a 3D model from the given path
+        async function loadModel(modelPath) {
             return new Promise((resolve, reject) => {
                 const loader = new THREE.GLTFLoader();
 
                 loader.load(
-                    'Demon.glb',
+                    modelPath,
                     (gltf) => {
-                        demonModel = gltf.scene;
+                        const loadedModel = gltf.scene;
 
                         // Scale and position the model
-                        demonModel.scale.set(0.5, 0.5, 0.5);
-                        demonModel.visible = false;
+                        loadedModel.scale.set(0.5, 0.5, 0.5);
+                        loadedModel.visible = false;
 
                         // Center the model
-                        const box = new THREE.Box3().setFromObject(demonModel);
+                        const box = new THREE.Box3().setFromObject(loadedModel);
                         const center = box.getCenter(new THREE.Vector3());
-                        demonModel.position.sub(center);
+                        loadedModel.position.sub(center);
 
                         // Add to scene
-                        scene.add(demonModel);
+                        scene.add(loadedModel);
 
-                        console.log('Demon model loaded successfully');
-                        resolve();
+                        const modelName = modelPath.split('/').pop().replace('.glb', '');
+                        console.log(`Model loaded successfully: ${modelName}`);
+                        resolve(loadedModel);
                     },
                     (progress) => {
-                        const percent = Math.round((progress.loaded / progress.total) * 100);
-                        loadingStatus.textContent = `Loading demon model... ${percent}%`;
+                        const modelName = modelPath.split('/').pop().replace('.glb', '');
+                        if (progress.total > 0) {
+                            const percent = Math.round((progress.loaded / progress.total) * 100);
+                            loadingStatus.textContent = `Loading ${modelName}... ${percent}%`;
+                        } else {
+                            loadingStatus.textContent = `Loading ${modelName}...`;
+                        }
                     },
                     (error) => {
                         console.error('Error loading model:', error);
-                        // Create fallback geometry if model fails to load
-                        createFallbackModel();
-                        resolve();
+                        reject(error);
                     }
                 );
             });
+        }
+
+        // Load a random 3D model
+        async function loadRandomModel() {
+            currentModelPath = getRandomModelPath();
+            const modelName = currentModelPath.split('/').pop().replace('.glb', '');
+            loadingStatus.textContent = `Loading ${modelName}...`;
+
+            try {
+                demonModel = await loadModel(currentModelPath);
+            } catch (error) {
+                console.error('Failed to load random model, creating fallback:', error);
+                createFallbackModel();
+            }
         }
 
         // Create fallback model if GLB fails to load
