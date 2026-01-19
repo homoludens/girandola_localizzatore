@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from "react-leaflet";
+import { MapContainer, ZoomControl, TileLayer, Marker, Popup, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { Girandola } from "@/types/girandola";
@@ -123,13 +123,15 @@ export default function MapComponent({
       zoom={zoom}
       className={`h-full w-full ${className} ${pickMode ? "cursor-crosshair" : ""}`}
       scrollWheelZoom={true}
-      zoomControl={true}
+      zoomControl={false}
     >
       <TileLayer
         key={mapLayer}
         attribution={tileConfig.attribution}
         url={tileConfig.url}
       />
+      <ZoomControl position="bottomleft"/>
+
       <MapResizeHandler />
       <MapClickHandler onMapClick={onMapClick} pickMode={pickMode} />
       <PanToLocation location={pendingLocation} />
