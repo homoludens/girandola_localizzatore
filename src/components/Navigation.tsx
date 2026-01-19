@@ -12,6 +12,7 @@ export async function Navigation() {
   const tContributors = await getTranslations("contributors");
   const tExport = await getTranslations("export");
   const tLegal = await getTranslations("legal");
+  const tWebar = await getTranslations("webar");
 
   return (
     <nav className="relative z-[1000] flex items-center justify-between border-b border-gray-200 bg-white px-3 py-2 shadow-sm sm:px-4 sm:py-3">
@@ -29,6 +30,12 @@ export async function Navigation() {
         </Link>
         {/* Desktop navigation links */}
         <div className="hidden items-center gap-4 sm:flex">
+          <a
+            href="/webar_custom.html"
+            className="text-sm text-gray-600 hover:text-gray-900"
+          >
+            {tWebar("findGirandola")}
+          </a>
           <Link
             href="/contributors"
             className="text-sm text-gray-600 hover:text-gray-900"
